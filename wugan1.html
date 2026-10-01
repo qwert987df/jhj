@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wugan</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body {
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+}
+
+/*底层原始清晰视频，圆孔位置透出它*/
+#videoRaw{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    object-fit:cover;
+    z-index:1;
+    transform: scaleX(-1);
+}
+
+/*文字层：在原始视频上方，全屏，禁止pre自动换行，js完整生成每行*/
+#textRepeatWrap{
+    position:fixed;
+    inset:0;
+    z-index:2;
+    overflow:hidden;
+    color:#ff2222;
+    font-size:19px;
+    line-height:0.95;
+    letter-spacing:-2px;
+    opacity:0.82;
+    pointer-events:none;
+    white-space:nowrap;
+}
+
+/*上层模糊视频遮罩层，挖空鼠标圆孔*/
+#videoBlurWrap{
+    position:fixed;
+    inset:0;
+    z-index:3;
+    pointer-events:none;
+    mask-image: radial-gradient(circle 70px at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+    -webkit-mask-image: radial-gradient(circle 70px at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+}
+#videoBlur{
+    width:100vw;
+    height:100vh;
+    object-fit:cover;
+    filter: blur(10px);
+    transform: scaleX(-1);
+}
+
+/*左下角返回首页按钮*/
+#backHome{
+    position:fixed;
+    left:20px;
+    bottom:20px;
+    z-index:10;
+    padding:8px 16px;
+    background:rgba(0,0,0,0.45);
+    color:#fff;
+    border:1px solid #888;
+    text-decoration:none;
+    font-size:15px;
+}
+#backHome:hover{
+    background:rgba(255,255,255,0.25);
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+</head>
+<body>
+<video id="videoRaw" autoplay muted playsinline></video>
+
+<div id="textRepeatWrap"></div>
+
+<div id="videoBlurWrap">
+    <video id="videoBlur" autoplay muted playsinline></video>
+</div>
+
+<a id="backHome" href="inside.html">回到首页</a >
+
+<script>
+const repeatDom = document.getElementById('textRepeatWrap');
+const textUnit = "献祭给我 ";
+let fullText = "";
+
+// 每行横向大量重复，保证撑满屏幕宽度；再循环生成很多行，纵向铺满
+const oneLine = textUnit.repeat(120);
+// 生成足够多行
+for(let row = 0; row < 120; row++){
+    fullText += oneLine + "\n";
+}
+repeatDom.innerText = fullText;
+
+//启动双份摄像头流
+navigator.mediaDevices.getUserMedia({
+    video:{facingMode:"user"},
+    audio:false
+}).then(stream=>{
+    document.getElementById('videoRaw').srcObject = stream;
+    document.getElementById('videoBlur').srcObject = stream;
+}).catch(err=>{
+    // 摄像头拿不到时不打断剧情：给一块说明牌，并指回「回到首页」
+    const tip = document.createElement('div');
+    tip.style.cssText = [
+        'position:fixed','left:50%','top:50%','transform:translate(-50%,-50%)',
+        'z-index:9999','max-width:min(520px,86vw)','padding:22px 26px',
+        'border-radius:14px','background:rgba(20,16,13,.92)',
+        'border:1px solid rgba(168,32,26,.75)','color:#eadfc6',
+        'font-size:15px','line-height:2','text-align:center',
+        'box-shadow:0 30px 80px rgba(0,0,0,.7)'
+    ].join(';');
+    tip.innerHTML =
+        '<div style="font-size:19px;letter-spacing:4px;margin-bottom:10px;color:#e2422f">摄像头没有开启</div>' +
+        '可能是你没有允许权限，或者当前环境不允许调用摄像头。<br>' +
+        '这不影响剧情，点击左下角<b style="color:#e2422f">「回到首页」</b>可以继续。' +
+        '<div style="margin-top:14px;font-size:12px;color:#9a938a;word-break:break-all">' +
+        String(err && err.message ? err.message : err) + '</div>';
+    document.body.appendChild(tip);
+    setTimeout(()=>{ tip.style.transition='opacity .8s ease'; tip.style.opacity='.72'; }, 6000);
+});
+
+//鼠标透镜跟随
+document.addEventListener('mousemove',function(e){
+    document.documentElement.style.setProperty('--mx', e.clientX + "px");
+    document.documentElement.style.setProperty('--my', e.clientY + "px");
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏说明</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family: system-ui,-apple-system,"Microsoft YaHei",sans-serif;
+    background:#eef2f8;
+}
+.win-frame{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+}
+.win-titlebar{
+    height:32px;
+    background:#2b579a;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    flex:0 0 32px;
+}
+.win-title{ flex:1; font-size:13px; }
+.win-buttons{ display:flex; gap:4px; }
+.win-btn{
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:14px;
+}
+.win-btn-min{ background:#4472b8; }
+
+.page{
+    flex:1;
+    overflow-y:auto;
+    padding:26px clamp(18px,4vw,46px) 40px;
+}
+.head{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding-bottom:16px;
+    border-bottom:1px solid rgba(16,24,40,.10);
+    margin-bottom:22px;
+}
+.head img{ width:52px;height:52px; }
+.head h1{ font-size:22px;color:#101828;letter-spacing:1px; }
+.head p{ font-size:13px;color:#667085;margin-top:4px; }
+
+.card{
+    background:#fff;
+    border:1px solid rgba(16,24,40,.08);
+    border-radius:14px;
+    padding:20px 22px;
+    margin-bottom:16px;
+    box-shadow:0 6px 20px rgba(16,24,40,.06);
+}
+.card h2{
+    font-size:15px;
+    color:#165dff;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.card h2::before{
+    content:"";
+    width:4px;height:15px;border-radius:3px;
+    background:linear-gradient(180deg,#2f78ff,#165dff);
+}
+.card ul{ padding-left:20px; }
+.card li{
+    font-size:13.5px;
+    line-height:2;
+    color:#344054;
+}
+.card li b{ color:#101828; }
+kbd{
+    display:inline-block;
+    min-width:20px;
+    padding:1px 7px;
+    border-radius:5px;
+    border:1px solid rgba(16,24,40,.18);
+    border-bottom-width:2px;
+    background:#f8fafc;
+    font-family:inherit;
+    font-size:12px;
+    color:#344054;
+}
+.tag{
+    display:inline-block;
+    padding:1px 8px;
+    border-radius:999px;
+    background:rgba(168,32,26,.09);
+    border:1px dashed rgba(168,32,26,.5);
+    color:#a8201a;
+    font-weight:700;
+    font-size:12.5px;
+}
+.note{
+    background:linear-gradient(135deg,#fff8e8,#fff3d6);
+    border-left:4px solid #f5a524;
+    border-radius:12px;
+    padding:16px 20px;
+    font-size:13px;
+    line-height:1.95;
+    color:#5c4a20;
+}
+.note b{ color:#8a5a00; }
+.footer{
+    margin-top:22px;
+    text-align:center;
+    font-size:12px;
+    color:#98a2b3;
+    line-height:1.9;
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+</head>
+<body>
+<div class="win-frame">
+    <div class="win-titlebar">
+        <div class="win-title">游戏说明</div>
+        <div class="win-buttons">
+            <div class="win-btn win-btn-min" onclick="location.href='index.html'">−</div>
+        </div>
+    </div>
+    <div class="page">
+
+        <div class="head">
+            <img src="help.svg" alt="">
+            <div>
+                <h1>怎么玩</h1>
+                <p>这是一段发生在你电脑里的故事 · 请慢慢看，不要着急</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>桌面操作</h2>
+            <ul>
+                <li><b>双击图标</b>打开应用；<b>拖动图标</b>可以挪位置（位置会被记住）。</li>
+                <li>窗口可以<b>拖动标题栏</b>移动，<b>双击标题栏</b>最大化，<b>拖右下角</b>改变大小。</li>
+                <li>窗口右上角三个按钮：<b>最小化 / 最大化 / 关闭</b>。</li>
+                <li>把窗口<b>拖到桌面「回收站」上</b>松手，就能把它删掉（图标还在，随时可以再打开）。</li>
+                <li>任务栏右下角的 <b>🔊</b> 可以一键静音，包括应用里所有的音效。</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>应用</h2>
+            <ul>
+                <li><b>薇信</b>：左边第一个图标是聊天，第二个是<b>朋友圈</b>。所有对话都可以慢慢翻。</li>
+                <li><b>贴吧</b>：热搜帖子点标题可以展开，里面常有被忽略的细节。</li>
+                <li><b>回收站</b>：里面的文件需要密码才能解开，密码的线索在别处。</li>
+                <li><b>静愈心理医院</b>：解压之后出现的应用，是整个故事的核心。</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>核心玩法：搜关键词</h2>
+            <ul>
+                <li>医院网站右上角有一个<b>搜索框</b>，输入正确的词会打开隐藏页面。</li>
+                <li>不知道搜什么？<b>页面上被 <span class="tag">朱笔圈点</span> 标出来的词，就是可以直接拿去搜的关键词。</b></li>
+                <li>当你进入「里世界」之后，那里还有一个独立的搜索框，关键词完全不同 ——
+                    同样，被<b>圈点</b>标出来的词就是答案。</li>
+                <li>搜到的页面里，<b>加粗的词、表格里的名字、文章里反复出现的专有名词</b>都值得留意。</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>卡住了怎么办</h2>
+            <ul>
+                <li>翻聊天记录的<b>每一条</b>，包括朋友圈的评论。</li>
+                <li>核对密码时注意<b>位数</b>和<b>提示里的措辞</b>。</li>
+                <li>打开过的页面在浏览器里<b>不能用后退键回去</b>（这是有意为之），请用桌面上的图标重新打开。</li>
+                <li>页面左下角的<b>「返回首页」</b>可以回到医院首页，重新搜索。</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <b>内容提示：</b>本作是虚构的悬疑解谜作品，剧情涉及抑郁、失眠、自伤与家庭创伤等主题描写，
+            部分过场包含突然的音效与画面闪烁。如果这些内容会让你不适，请随时停止游玩。
+            <br><br>
+            如果你或身边的人正在被情绪困扰，请把它交给专业的人 —— 心理援助热线 <b>12356</b>，
+            或直接前往正规医院的精神心理科。虚构故事里的答案，不适合用来回答真实的人生。
+        </div>
+
+        <div class="footer">
+            静愈心理医院 · 网页解谜<br>
+            用桌面上的图标随时回到这一段故事
+        </div>
+
+    </div>
+</div>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>shencongliang</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body {
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+}
+
+/*透镜系统 blur8px 圆孔75px*/
+#bgBlurLayer{
+    position:fixed;
+    inset:0;
+    z-index:997;
+    pointer-events:none;
+    background:#000000;
+    filter: blur(8px);
+    mask-image: radial-gradient(circle 75px at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+    -webkit-mask-image: radial-gradient(circle 75px at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+}
+
+#mainWrap{
+    position:relative;
+    z-index:999;
+    width:100%;
+    height:100%;
+}
+
+.text-blur{
+    filter: blur(8px);
+    width:100%;
+    height:100%;
+    background:#000000;
+    overflow:auto;
+    padding:40px 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.text-clear{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    overflow:auto;
+    padding:40px 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    mask-image: radial-gradient(circle 75px at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle 75px at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+}
+
+/* === win‑frame窗口UI导航（固定模板，横向铺满） === */
+.win-frame{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    max-width:100%;
+}
+.win-titlebar{
+    height:32px;
+    background:#2b579a;
+    color:#ffffff;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+}
+.win-title{
+    flex:1;
+    font-size:13px;
+}
+.win-buttons{
+    display:flex;
+    gap:4px;
+}
+.win-btn{
+    width:26px;
+    height:26px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    cursor:default;
+    pointer-events:none;
+}
+.win-btn-min{
+    background:#4472b8;
+}
+.main-container{
+    background:rgba(0,0,0,0.75);
+    padding:14px 40px;
+}
+.top-header{
+    margin-bottom:12px;
+}
+.hospital-name{
+    font-size:26px;
+    font-weight:bold;
+    color:#ff2222;
+}
+.hospital-sub{
+    font-size:14px;
+    opacity:0.85;
+    color:#ff2222;
+    margin-top:4px;
+}
+.nav-bar{
+    background:rgba(10,10,10,0.75);
+    border-bottom:1px solid #ff2222;
+    display:flex;
+    justify-content: space-around;
+    padding:12px 40px;
+    width:100%;
+}
+.nav-item{
+    font-size:15px;
+    color:#ff2222;
+    cursor:default;
+    pointer-events:none;
+}
+.nav-item:hover{
+    color:#ff8888;
+}
+
+/*页面内容样式*/
+.content-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:65vh;
+    gap:40px;
+}
+.big-title{
+    font-size:52px;
+    color:#ff2222;
+    text-align:center;
+    letter-spacing:6px;
+}
+.input-wrap{
+    width:320px;
+}
+#secretInput{
+    width:100%;
+    padding:14px 16px;
+    background:#0a0a0a;
+    border:1px solid #bb0000;
+    color:#ff2222;
+    font-size:18px;
+    outline:none;
+}
+#secretInput::placeholder{
+    color:#772222;
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="zhongshi.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<div id="bgBlurLayer"></div>
+
+<div id="mainWrap">
+    <!--模糊层副本-->
+    <div class="text-blur">
+        <div class="win-frame">
+            <div class="win-titlebar">
+                <div class="win-title">inside</div>
+                <div class="win-buttons">
+                    <div class="win-btn win-btn-min">−</div>
+                </div>
+            </div>
+            <div class="main-container">
+                <div class="top-header">
+                    <div class="hospital-name">。。【‘’心理医院</div>
+                    <div class="hospital-sub">五感奉于神明，恶念终为真念</div>
+                </div>
+                <div class="nav-bar">
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                </div>
+
+                <div class="content-box">
+                    <h1 class="big-title">加密文件</h1>
+                    <div class="input-wrap">
+                        <input id="secretInput" type="text" placeholder="输入密钥...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--鼠标圆孔清晰层副本-->
+    <div class="text-clear">
+        <div class="win-frame">
+            <div class="win-titlebar">
+                <div class="win-title">inside</div>
+                <div class="win-buttons">
+                    <div class="win-btn win-btn-min">−</div>
+                </div>
+            </div>
+            <div class="main-container">
+                <div class="top-header">
+                    <div class="hospital-name">。。【‘’心理医院</div>
+                    <div class="hospital-sub">五感奉于神明，恶念终为真念</div>
+                </div>
+                <div class="nav-bar">
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                    <div class="nav-item">无官上神</div>
+                </div>
+
+                <div class="content-box">
+                    <h1 class="big-title">加密文件</h1>
+                    <div class="input-wrap">
+                        <input id="secretInputClear" type="text" placeholder="输入密钥...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+//鼠标透镜跟随
+document.addEventListener('mousemove',function(e){
+    document.documentElement.style.setProperty('--mx',e.clientX+"px");
+    document.documentElement.style.setProperty('--my',e.clientY+"px");
+});
+
+//双输入框同步，输入kill回车跳转 kill.html
+const inputBlur = document.getElementById('secretInput');
+const inputClear = document.getElementById('secretInputClear');
+
+//同步两个文本框内容
+inputBlur.addEventListener('input', ()=>{
+    inputClear.value = inputBlur.value;
+});
+inputClear.addEventListener('input', ()=>{
+    inputBlur.value = inputClear.value;
+});
+
+//回车检测密钥kill
+function checkKey(val){
+    if(val.trim().toLowerCase() === "kill"){
+        window.location.href = "kill.html";
+    }
+}
+
+inputBlur.addEventListener('keydown',(e)=>{
+    if(e.key === "Enter") checkKey(inputBlur.value);
+});
+inputClear.addEventListener('keydown',(e)=>{
+    if(e.key === "Enter") checkKey(inputClear.value);
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="zhongshi.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

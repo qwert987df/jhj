@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lushen</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body {
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+}
+/*=====透镜 沿用之前参数 blur10px 圆孔70px=====*/
+#bgBlurLayer{
+    position:fixed;
+    inset:0;
+    z-index:997;
+    pointer-events:none;
+    display:block;
+    background:#000000;
+    filter: blur(10px);
+    mask-image: radial-gradient(circle 70px at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+    -webkit-mask-image: radial-gradient(circle 70px at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+}
+#mainWrap{
+    position:relative;
+    z-index:999;
+    width:100%;
+    height:100%;
+}
+.text-blur{
+    filter: blur(10px);
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    text-align:center;
+    background:#000;
+}
+.text-clear{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    text-align:center;
+    mask-image: radial-gradient(circle 70px at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle 70px at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+}
+
+.tip-warning{
+    font-size:22px;
+    line-height:2;
+    margin-bottom:40px;
+    color:#ff2222;
+}
+.input-wrap{
+    display:flex;
+    gap:12px;
+}
+#answer-input{
+    width:320px;
+    padding:14px 18px;
+    background:#111111;
+    border:2px solid #ff2222;
+    color:#ff2222;
+    font-size:18px;
+    outline:none;
+}
+#confirm-btn{
+    padding:14px 26px;
+    background:#ff2222;
+    color:#000;
+    border:none;
+    font-size:18px;
+    cursor:pointer;
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="zhongshi.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<div id="bgBlurLayer"></div>
+
+<div id="mainWrap">
+    <div class="text-blur">
+        <div class="tip-warning">
+警告，此界面往后是彩蛋页，请没玩过作者前作"白鹿山失踪案"的玩家优先完成其他结局<br>
+请说出白鹿山景区的安全主管名字
+        </div>
+        <div class="input-wrap">
+            <input id="answer-input" placeholder="请输入名字">
+            <button id="confirm-btn">确认</button>
+        </div>
+    </div>
+
+    <div class="text-clear">
+        <div class="tip-warning">
+警告，此界面往后是彩蛋页，请没玩过作者前作"白鹿山失踪案"的玩家优先完成其他结局<br>
+请说出白鹿山景区的安全主管名字
+        </div>
+        <div class="input-wrap">
+            <input data-arg-mirror="1" placeholder="请输入名字">
+            <button data-arg-mirror="1">确认</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('mousemove',function(e){
+    document.documentElement.style.setProperty('--mx',e.clientX+"px");
+    document.documentElement.style.setProperty('--my',e.clientY+"px");
+});
+
+const inputEl = document.querySelector('.text-blur #answer-input');
+const btnEl = document.querySelector('.text-blur #confirm-btn');
+
+function checkAnswer(){
+    const val = inputEl.value.trim();
+    if(val === "丁子熙"){
+        window.location.href = "egg.html";
+    }else{
+        alert("答案错误，请重新输入");
+        inputEl.value = "";
+        inputEl.focus();
+    }
+}
+
+btnEl.addEventListener('click', checkAnswer);
+inputEl.addEventListener('keydown',function(e){
+    if(e.key === 'Enter') checkAnswer();
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="zhongshi.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

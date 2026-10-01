@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>black</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            background-color: #000000;
+            color: #eeeeee;
+            min-height: 100vh;
+            overflow-y: auto;
+            padding:60px 20px;
+        }
+        .container{
+            max-width:700px;
+            margin:0 auto;
+            text-align:center;
+        }
+        .title{
+            font-size:44px;
+            font-weight:bold;
+            margin-bottom:40px;
+        }
+        .text-line{
+            font-size:24px;
+            line-height:2.2;
+            margin-bottom:8px;
+        }
+        .bold-word{
+            font-weight:900;
+            color:#ffffff;
+        }
+        /*左下角返回首页*/
+        .back-index{
+            position:fixed;
+            left:16px;
+            bottom:16px;
+            font-size:13px;
+            color:#777777;
+            cursor:pointer;
+        }
+        .back-index:hover{
+            color:#ffffff;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+    <div class="container">
+        <div class="title">对话记录</div>
+        <div class="text-line">王医生，我说的事考虑的怎么样了</div>
+        <div class="text-line">我很感谢贵院给我的栽培与肯定，可是这种事情…</div>
+        <div class="text-line">王医生，啊不，王主任，再问您一遍，您…考虑的怎么样了？</div>
+        <div class="text-line">我明白你的好意，可是…</div>
+        <div class="text-line">今年王主任没准还能当个优秀医师…最后问你一遍，考虑的怎么样了？</div>
+        <div class="text-line">…………</div>
+        <div class="text-line">…………</div>
+        <div class="text-line">…………</div>
+        <div class="text-line">他的<span class="bold-word">作用</span>？bm90aGluZw==，呵呵</div>
+    </div>
+    <div class="back-index" onclick="location.href='index.html'">返回首页</div>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

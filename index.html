@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1220">
+    <title>桌面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+            background: #0b1220;
+        }
+
+        /* ================= 桌面 ================= */
+        .desktop {
+            position: fixed;
+            inset: 0 0 48px 0;
+            background: url("./bg.jpg") no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        /* 顶部柔光 + 底部渐暗，让图标文字更清晰，整体更有电影感 */
+        .desktop::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(120% 90% at 15% 0%, rgba(120,190,255,.20), transparent 55%),
+                radial-gradient(100% 80% at 100% 100%, rgba(0,0,0,.55), transparent 60%),
+                linear-gradient(180deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,.06) 26%, rgba(0,0,0,.42) 100%);
+            z-index: 1;
+        }
+        .desktop::after {
+            content: "";
+            position: absolute;
+            inset: -10%;
+            pointer-events: none;
+            background: radial-gradient(closest-side, rgba(255,255,255,.05), transparent 70%);
+            animation: driftGlow 18s ease-in-out infinite alternate;
+            z-index: 1;
+        }
+        @keyframes driftGlow {
+            from { transform: translate3d(-4%, -3%, 0) scale(1); }
+            to   { transform: translate3d(4%, 3%, 0) scale(1.08); }
+        }
+
+        #iconLayer {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+        }
+
+        /* ================= 桌面图标 ================= */
+        .desktop-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 92px;
+            padding: 8px 4px 6px;
+            text-align: center;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            will-change: transform;
+            transform: translate3d(0, 0, 0);
+            touch-action: none;
+            transition: background-color .18s ease, box-shadow .18s ease;
+        }
+        .desktop-icon .icon-box {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 7px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,.55));
+            transition: transform .28s cubic-bezier(.22,1,.36,1);
+        }
+        .desktop-icon .icon-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+        .desktop-icon span {
+            display: block;
+            font-size: 12px;
+            line-height: 1.35;
+            text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 10px rgba(0,0,0,.6);
+            word-break: break-all;
+        }
+        .desktop-icon:hover {
+            background: rgba(255,255,255,.12);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+        }
+        .desktop-icon:hover .icon-box { transform: translateY(-2px) scale(1.06); }
+        .desktop-icon.selected {
+            background: rgba(96,165,250,.30);
+            box-shadow: inset 0 0 0 1px rgba(147,197,253,.75), 0 6px 18px rgba(0,0,0,.35);
+        }
+        .desktop-icon:focus-visible {
+            outline: 2px solid rgba(147,197,253,.95);
+            outline-offset: 3px;
+            background: rgba(96,165,250,.26);
+        }
+        .desktop-icon.dragging {
+            cursor: grabbing;
+            z-index: 20;
+        }
+        .desktop-icon.dragging .icon-box { transform: scale(1.14) rotate(-3deg); }
+        .desktop-icon.dragging { transition: none; }
+        .desktop-icon.trash-hot { background: rgba(248,113,113,.28); box-shadow: inset 0 0 0 1px rgba(252,165,165,.7); }
+
+        /* 回收站“吞咽”反馈 */
+        .desktop-icon.eating .icon-box { animation: eatPop .62s cubic-bezier(.22,1,.36,1); }
+        @keyframes eatPop {
+            0%   { transform: scale(1); }
+            28%  { transform: scale(1.28) rotate(-6deg); }
+            55%  { transform: scale(.86) rotate(4deg); }
+            100% { transform: scale(1); }
+        }
+        /* 新应用登场 */
+        .desktop-icon.born .icon-box { animation: bornPop .8s cubic-bezier(.22,1,.36,1); }
+        @keyframes bornPop {
+            0%   { transform: scale(.2) rotate(-25deg); opacity: 0; }
+            55%  { transform: scale(1.22) rotate(6deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0); }
+        }
+        .desktop-icon.born::after {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            border-radius: 14px;
+            border: 2px solid rgba(147,197,253,.9);
+            animation: bornRing 1.3s ease-out 2;
+            pointer-events: none;
+        }
+        @keyframes bornRing {
+            0%   { opacity: .9; transform: scale(.75); }
+            100% { opacity: 0; transform: scale(1.35); }
+        }
+
+        /* ================= 任务栏 ================= */
+        .taskbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            z-index: 9000;
+            background: linear-gradient(180deg, rgba(18,32,58,.86) 0%, rgba(10,18,34,.94) 100%);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            border-top: 1px solid rgba(255,255,255,.14);
+            box-shadow: 0 -10px 30px rgba(0,0,0,.45);
+        }
+        .start-btn {
+            width: 56px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: background-color .2s ease;
+        }
+        .start-btn:hover { background: rgba(255,255,255,.12); }
+        .start-btn.active { background: rgba(96,165,250,.35); }
+        .win-logo {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: conic-gradient(from 45deg, #60a5fa, #34d399, #fbbf24, #f87171, #60a5fa);
+            box-shadow: 0 0 14px rgba(96,165,250,.75), inset 0 0 8px rgba(255,255,255,.35);
+            transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+        }
+        .start-btn:hover .win-logo { transform: rotate(90deg) scale(1.08); }
+
+        .taskbar-apps {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 100%;
+            padding: 0 8px;
+            overflow: hidden;
+        }
+        .task-app-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 34px;
+            max-width: 190px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.06);
+            color: #dbe7ff;
+            font-size: 12.5px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            transition: background-color .2s ease, transform .28s cubic-bezier(.22,1,.36,1), border-color .2s ease, box-shadow .28s ease;
+        }
+        .task-app-item img { width: 18px; height: 18px; object-fit: contain; }
+        .task-app-item .tt { overflow: hidden; text-overflow: ellipsis; }
+        .task-app-item:hover { background: rgba(255,255,255,.16); transform: translateY(-2px); }
+        .task-app-item.active {
+            background: rgba(96,165,250,.30);
+            border-color: rgba(147,197,253,.75);
+            box-shadow: 0 0 16px rgba(96,165,250,.35), inset 0 0 0 1px rgba(255,255,255,.12);
+        }
+        .task-app-item.active::after {
+            content: "";
+            position: absolute;
+            left: 10px; right: 10px; bottom: 2px;
+            height: 2px; border-radius: 2px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+        }
+        .task-app-item.minimized { opacity: .62; }
+        .task-app-item.entering { animation: taskIn .34s cubic-bezier(.22,1,.36,1); }
+        @keyframes taskIn {
+            from { transform: translateY(16px) scaleX(.6); opacity: 0; }
+            to   { transform: translateY(0) scaleX(1); opacity: 1; }
+        }
+        .task-app-item.leaving { animation: taskOut .26s ease forwards; }
+        @keyframes taskOut {
+            to { transform: translateY(14px) scale(.7); opacity: 0; }
+        }
+        .task-app-item.shake { animation: shake .42s cubic-bezier(.36,.07,.19,.97); }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-6px); }
+            40%, 60% { transform: translateX(6px); }
+        }
+
+        .task-tray {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 16px;
+            height: 100%;
+            color: #cfe0ff;
+            font-size: 14px;
+        }
+        .tray-icon { font-size: 15px; opacity: .85; }
+        .tray-btn {
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background-color .2s ease, transform .2s ease, opacity .2s ease;
+        }
+        .tray-btn:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); opacity: 1; }
+        .tray-btn.off { opacity: .55; }
+        .tray-time { text-align: right; font-size: 11.5px; line-height: 1.25; }
+        .tray-time #clockTime { font-size: 13px; color: #eaf2ff; }
+
+        /* ================= 开始菜单 ================= */
+        .start-menu {
+            position: fixed;
+            left: 10px;
+            bottom: 54px;
+            width: 330px;
+            padding: 12px 10px;
+            border-radius: 14px;
+            z-index: 9500;
+            background: linear-gradient(180deg, rgba(20,35,62,.94), rgba(11,20,38,.96));
+            border: 1px solid rgba(255,255,255,.14);
+            box-shadow: 0 24px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.10);
+            backdrop-filter: blur(22px) saturate(150%);
+            -webkit-backdrop-filter: blur(22px) saturate(150%);
+            color: #e6eeff;
+            transform-origin: 0 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(14px) scale(.96);
+            transition: opacity .22s ease, transform .28s cubic-bezier(.22,1,.36,1), visibility .28s;
+        }
+        .start-menu.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .start-menu .sm-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #8fb2e8;
+            padding: 4px 10px 8px;
+        }
+        .sm-progress {
+            font-size: 11.5px;
+            letter-spacing: 1px;
+            color: #7f9dd0;
+            padding: 6px 12px 10px;
+        }
+        .sm-progress b { color: #a9c6ff; font-weight: 700; }
+        .sm-progress .sm-bar {
+            display: block;
+            height: 3px;
+            margin-top: 7px;
+            border-radius: 3px;
+            background: rgba(255,255,255,.10);
+            overflow: hidden;
+        }
+        .sm-progress .sm-bar i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            transition: width .6s cubic-bezier(.22,1,.36,1);
+        }
+        .start-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13.5px;
+            transition: background-color .18s ease, transform .22s cubic-bezier(.22,1,.36,1);
+        }
+        .start-item img { width: 24px; height: 24px; object-fit: contain; }
+        .start-item:hover { background: rgba(96,165,250,.22); transform: translateX(3px); }
+        .start-sep { height: 1px; margin: 8px 10px; background: rgba(255,255,255,.10); }
+        .start-item.danger:hover { background: rgba(248,113,113,.22); }
+
+        /* ================= 窗口 ================= */
+        #windowLayer {
+            position: fixed;
+            inset: 0 0 48px 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+        #windowLayer.dragging-win .win-body { pointer-events: none; }
+
+        .win {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            overflow: hidden;
+            pointer-events: auto;
+            background: rgba(12,20,36,.92);
+            border: 1px solid rgba(255,255,255,.16);
+            box-shadow: 0 26px 70px rgba(0,0,0,.62), 0 2px 0 rgba(255,255,255,.06) inset;
+            will-change: transform, width, height, opacity;
+        }
+        .win::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+        }
+        .win.focused { box-shadow: 0 34px 90px rgba(0,0,0,.72), 0 0 0 1px rgba(147,197,253,.55), 0 2px 0 rgba(255,255,255,.08) inset; }
+        .win.trash-armed { filter: saturate(.55) brightness(.86); }
+        .win.trash-armed .win-chrome { background: linear-gradient(180deg, rgba(120,32,32,.95), rgba(72,18,18,.95)); }
+        /* 剧情锁定的窗口：不能最小化、不能关闭、也拖不进回收站 */
+        .win.win-locked .win-chrome {
+            background: linear-gradient(180deg, rgba(58,30,34,.96), rgba(30,16,20,.96));
+            border-bottom-color: rgba(200,90,90,.28);
+        }
+        .win.win-locked .wa-min,
+        .win.win-locked .wa-close {
+            opacity: .3;
+            cursor: not-allowed;
+        }
+        .win.win-locked .wa-min:hover,
+        .win.win-locked .wa-close:hover {
+            background: rgba(255,255,255,.09);
+            transform: none;
+        }
+        .win-lock-chip {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 10.5px;
+            letter-spacing: 1px;
+            color: #ffb4b4;
+            background: rgba(200,60,60,.16);
+            border: 1px solid rgba(220,90,90,.35);
+            white-space: nowrap;
+        }
+        .win.win-locked .win-lock-chip { display: inline-flex; }
+
+        .win-chrome {
+            height: 38px;
+            flex: 0 0 38px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 8px 0 12px;
+            background: linear-gradient(180deg, rgba(38,62,104,.96), rgba(22,38,68,.96));
+            border-bottom: 1px solid rgba(255,255,255,.10);
+            cursor: default;
+            touch-action: none;
+            transition: background .3s ease;
+        }
+        .win.focused .win-chrome { background: linear-gradient(180deg, rgba(46,86,150,.97), rgba(24,48,90,.97)); }
+        .win-chrome img { width: 18px; height: 18px; object-fit: contain; pointer-events: none; }
+        .win-title {
+            flex: 1;
+            color: #e8f1ff;
+            font-size: 13px;
+            letter-spacing: .3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,.5);
+        }
+        .win-actions { display: flex; gap: 6px; }
+        .wa {
+            width: 32px;
+            height: 26px;
+            border: none;
+            border-radius: 7px;
+            background: rgba(255,255,255,.09);
+            color: #dce8ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color .18s ease, transform .18s ease, color .18s ease;
+        }
+        .wa svg { width: 12px; height: 12px; display: block; }
+        .wa svg * { vector-effect: non-scaling-stroke; }
+        .wa:hover { background: rgba(255,255,255,.24); transform: translateY(-1px); }
+        .wa:active { transform: scale(.92); }
+        .wa-close:hover { background: #ef4444; color: #fff; }
+        .wa-max:hover { background: #3b82f6; color: #fff; }
+        .wa-min:hover { background: #64748b; color: #fff; }
+
+        .win-body {
+            flex: 1;
+            position: relative;
+            background: #fff;
+            overflow: hidden;
+        }
+        .win-body iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            background: #fff;
+        }
+        /* 右下角缩放把手 */
+        .win-resize {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 20px;
+            height: 20px;
+            cursor: nwse-resize;
+            z-index: 6;
+            touch-action: none;
+        }
+        .win-resize::after {
+            content: "";
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            width: 9px;
+            height: 9px;
+            border-right: 2px solid rgba(255,255,255,.34);
+            border-bottom: 2px solid rgba(255,255,255,.34);
+            border-radius: 0 0 3px 0;
+            transition: border-color .2s ease;
+        }
+        .win:hover .win-resize::after { border-color: rgba(255,255,255,.62); }
+        .win.focused .win-resize::after { border-color: rgba(190,220,255,.8); }
+        .win-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,18,34,.94);
+            color: #9fb8e6;
+            font-size: 13px;
+            letter-spacing: 1px;
+            transition: opacity .3s ease;
+        }
+        .win-loading.hide { opacity: 0; pointer-events: none; }
+
+        /* ================= 锁屏 ================= */
+        .lock-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #fff;
+            background: url("lock_bg.jpg") center / cover no-repeat fixed;
+            transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1), filter .7s ease;
+        }
+        .lock-screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.34);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+        .lock-screen.unlocked { opacity: 0; transform: scale(1.06); filter: blur(14px); pointer-events: none; }
+        .lock-inner {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: lockIn .9s cubic-bezier(.22,1,.36,1) both;
+        }
+        @keyframes lockIn {
+            from { opacity: 0; transform: translateY(26px) scale(.96); filter: blur(8px); }
+            to   { opacity: 1; transform: none; filter: blur(0); }
+        }
+        .lock-avatar {
+            width: 116px;
+            height: 116px;
+            border-radius: 50%;
+            background: url("avatar.png") center / cover;
+            border: 2px solid rgba(255,255,255,.5);
+            box-shadow: 0 12px 40px rgba(0,0,0,.55), 0 0 0 8px rgba(255,255,255,.06);
+            margin-bottom: 18px;
+            animation: avatarFloat 6s ease-in-out infinite;
+        }
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+        .lock-name { font-size: 22px; letter-spacing: 3px; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,.7); }
+        .lock-hint { font-size: 13px; color: rgba(255,255,255,.72); margin-bottom: 22px; }
+        .lock-field {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 6px 6px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.28);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: box-shadow .3s ease, border-color .3s ease, transform .3s ease;
+        }
+        .lock-field:focus-within { box-shadow: 0 0 0 4px rgba(96,165,250,.28); border-color: rgba(147,197,253,.9); }
+        .lock-field.wrong { animation: lockShake .45s cubic-bezier(.36,.07,.19,.97); border-color: rgba(248,113,113,.95); }
+        @keyframes lockShake {
+            10%, 90% { transform: translateX(-3px); }
+            20%, 80% { transform: translateX(5px); }
+            30%, 50%, 70% { transform: translateX(-8px); }
+            40%, 60% { transform: translateX(8px); }
+        }
+        #lockInput {
+            width: 210px;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #fff;
+            font-size: 15px;
+            letter-spacing: 2px;
+            font-family: inherit;
+        }
+        #lockInput::placeholder { color: rgba(255,255,255,.55); letter-spacing: 0; }
+        .lock-btn {
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background: linear-gradient(135deg, #60a5fa, #6366f1);
+            color: #fff;
+            font-size: 17px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(59,130,246,.55);
+            transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+        }
+        .lock-btn:hover { transform: scale(1.07); box-shadow: 0 8px 26px rgba(59,130,246,.75); }
+        .lock-btn:active { transform: scale(.94); }
+        .lock-btn.ok { filter: hue-rotate(70deg) saturate(1.4); }
+        .lock-tip {
+            margin-top: 14px;
+            min-height: 20px;
+            font-size: 13px;
+            color: #fca5a5;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity .25s ease;
+        }
+        .lock-tip.show { opacity: 1; }
+        .lock-tip.ok { color: #86efac; }
+        .lock-clock {
+            position: absolute;
+            top: 42px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 2;
+            color: rgba(255,255,255,.92);
+            text-shadow: 0 3px 16px rgba(0,0,0,.6);
+        }
+        .lock-clock .lc-time { font-size: 54px; font-weight: 200; letter-spacing: 3px; }
+        .lock-clock .lc-date { font-size: 14px; letter-spacing: 3px; opacity: .8; margin-top: 2px; }
+        .lock-boot {
+            position: absolute;
+            bottom: 34px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 2;
+            color: rgba(255,255,255,.55);
+            font-size: 12px;
+            letter-spacing: 3px;
+            animation: bootPulse 2.4s ease-in-out infinite;
+        }
+        .lock-note {
+            position: absolute;
+            bottom: 66px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 2;
+            color: rgba(255,255,255,.42);
+            font-size: 11.5px;
+            line-height: 1.8;
+            letter-spacing: .5px;
+            padding: 0 24px;
+        }
+        .lock-note b { color: rgba(255,255,255,.62); font-weight: 600; }
+        @keyframes bootPulse { 0%,100% { opacity: .35; } 50% { opacity: .9; } }
+
+        /* ================= 提示条 ================= */
+        .toast-wrap {
+            position: fixed;
+            right: 18px;
+            bottom: 64px;
+            z-index: 15000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 340px;
+            padding: 11px 16px;
+            border-radius: 10px;
+            color: #e8f1ff;
+            font-size: 13px;
+            background: linear-gradient(180deg, rgba(24,40,70,.96), rgba(13,22,40,.97));
+            border: 1px solid rgba(255,255,255,.16);
+            box-shadow: 0 16px 40px rgba(0,0,0,.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            animation: toastIn .34s cubic-bezier(.22,1,.36,1);
+        }
+        .toast.leaving { animation: toastOut .28s ease forwards; }
+        .toast.warn { border-color: rgba(248,113,113,.55); }
+        .toast.ok { border-color: rgba(52,211,153,.55); }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px) scale(.95); }
+            to   { opacity: 1; transform: none; }
+        }
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(30px) scale(.95); }
+        }
+
+        /* 屏幕碎屑（删除应用时） */
+        .shard {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: linear-gradient(135deg, #93c5fd, #6366f1);
+            pointer-events: none;
+            z-index: 14000;
+            will-change: transform, opacity;
+        }
+
+        @media (max-width: 620px) {
+            .desktop-icon { width: 78px; }
+            .desktop-icon .icon-box { width: 44px; height: 44px; }
+            .task-tray .tray-icon { display: none; }
+            .lock-clock .lc-time { font-size: 38px; }
+            #lockInput { width: 150px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================= 开机锁屏 ================= -->
+<div class="lock-screen" id="lockScreen">
+    <div class="lock-clock">
+        <div class="lc-time" id="lockTime">--:--</div>
+        <div class="lc-date" id="lockDate"></div>
+    </div>
+    <div class="lock-inner">
+        <div class="lock-avatar"></div>
+        <div class="lock-name">用户</div>
+        <div class="lock-hint">这台电脑已被锁定，请输入开机密码</div>
+        <div class="lock-field" id="lockField">
+            <input type="password" id="lockInput" placeholder="请输入密码" autocomplete="off" spellcheck="false">
+            <button class="lock-btn" id="lockBtn" aria-label="解锁">→</button>
+        </div>
+        <div class="lock-tip" id="lockTip"></div>
+    </div>
+    <div class="lock-note">
+        本作是虚构的悬疑解谜作品，剧情涉及抑郁、自伤等主题，部分过场有突然的音效与画面闪烁。<br>
+        如感到不适请随时停止；桌面左下角「开始 → 游戏说明」里有完整提示与求助方式。
+    </div>
+    <div class="lock-boot" id="lockBoot">正在启动系统…</div>
+</div>
+
+<!-- ================= 桌面 ================= -->
+<div class="desktop" id="desktop">
+    <div id="iconLayer"></div>
+</div>
+
+<!-- ================= 窗口层 ================= -->
+<div id="windowLayer"></div>
+
+<!-- ================= 开始菜单 ================= -->
+<div class="start-menu" id="startMenu">
+    <div class="sm-title">应 用</div>
+    <div id="startApps"></div>
+    <div class="sm-progress" id="smProgress"></div>
+    <div class="start-sep"></div>
+    <div class="start-item" id="smHelp">
+        <span style="width:24px;text-align:center;font-size:18px">📖</span>
+        <span>游戏说明</span>
+    </div>
+    <div class="start-item" id="smReset">
+        <span style="width:24px;text-align:center;font-size:18px">♻️</span>
+        <span>重置进度</span>
+    </div>
+    <div class="start-item" id="smLock">
+        <span style="width:24px;text-align:center;font-size:18px">🔒</span>
+        <span>锁定屏幕</span>
+    </div>
+    <div class="start-item danger" id="smCloseAll">
+        <span style="width:24px;text-align:center;font-size:18px">🧹</span>
+        <span>关闭全部窗口</span>
+    </div>
+</div>
+
+<!-- ================= 任务栏 ================= -->
+<div class="taskbar">
+    <div class="start-btn" id="startBtn" title="开始">
+        <div class="win-logo"></div>
+    </div>
+    <div class="taskbar-apps" id="taskApps"></div>
+    <div class="task-tray">
+        <span class="tray-icon" title="网络">🔌</span>
+        <span class="tray-icon tray-btn" id="traySound" title="点击静音 / 恢复声音">🔊</span>
+        <span class="tray-icon" title="电量">🔋</span>
+        <div class="tray-time">
+            <div id="clockTime">00:00</div>
+            <div id="clockDate">2026/08/09</div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* =========================================================================
+   安全防护（沿用原作设定）
+   ========================================================================= */
+document.oncontextmenu = function () { return false; };
+document.onkeydown = function (e) {
+    e = e || window.event;
+    if (e.keyCode === 123) return false;                       // F12
+    if (e.ctrlKey && e.keyCode === 85) return false;           // Ctrl+U
+    if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) return false;
+};
+history.pushState(null, null, window.location.href);
+window.addEventListener('popstate', function () {
+    history.pushState(null, null, window.location.href);
+});
+
+/* =========================================================================
+   音效引擎：全部实时合成，不依赖任何外部音频文件
+   ========================================================================= */
+const SFX = (function () {
+    let ctx = null, master = null, muted = false;
+
+    function ac() {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!ctx) {
+            ctx = new AC();
+            master = ctx.createGain();
+            master.gain.value = 0.42;
+            master.connect(ctx.destination);
+        }
+        if (ctx.state === 'suspended' && ctx.resume) {
+            try { ctx.resume().catch(function () {}); } catch (e) {}
+        }
+        return ctx;
+    }
+
+    function voice(node, t, attack, dur, peak) {
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + attack);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + attack + dur);
+        node.connect(g);
+        g.connect(master);
+    }
+
+    function tone(freq, opt) {
+        if (muted) return;
+        const c = ac(); if (!c) return;
+        opt = opt || {};
+        const dur = opt.dur == null ? 0.16 : opt.dur;
+        const t = c.currentTime + (opt.at || 0);
+        const o = c.createOscillator();
+        o.type = opt.type || 'sine';
+        o.frequency.setValueAtTime(freq, t);
+        if (opt.to) o.frequency.exponentialRampToValueAtTime(Math.max(30, opt.to), t + dur);
+        voice(o, t, opt.attack == null ? 0.008 : opt.attack, dur, opt.gain == null ? 0.16 : opt.gain);
+        o.start(t);
+        o.stop(t + dur + 0.08);
+    }
+
+    function noise(opt) {
+        if (muted) return;
+        const c = ac(); if (!c) return;
+        opt = opt || {};
+        const dur = opt.dur == null ? 0.28 : opt.dur;
+        const t = c.currentTime + (opt.at || 0);
+        const len = Math.max(1, Math.floor(c.sampleRate * dur));
+        const buf = c.createBuffer(1, len, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        const f = c.createBiquadFilter();
+        f.type = opt.type || 'bandpass';
+        f.frequency.value = opt.freq || 1200;
+        f.Q.value = opt.q == null ? 1 : opt.q;
+        src.connect(f);
+        voice(f, t, 0.005, dur, opt.gain == null ? 0.18 : opt.gain);
+        src.start(t);
+        src.stop(t + dur + 0.05);
+    }
+
+    return {
+        unlock: function () {
+            [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) {
+                tone(f, { type: 'triangle', dur: 0.42, gain: 0.13, at: i * 0.07 });
+            });
+            noise({ dur: 0.35, gain: 0.05, freq: 3200, q: 0.7 });
+        },
+        boot: function () {
+            tone(196, { dur: 1.2, gain: 0.08 });
+            tone(294, { dur: 1.0, gain: 0.05, at: 0.14 });
+            tone(392, { type: 'triangle', dur: 0.9, gain: 0.045, at: 0.30 });
+        },
+        click: function () { tone(1180, { type: 'square', dur: 0.045, gain: 0.05 }); },
+        hover: function () { tone(1560, { dur: 0.035, gain: 0.025 }); },
+        open: function () {
+            tone(430, { dur: 0.24, gain: 0.11, to: 940 });
+            noise({ dur: 0.2, gain: 0.045, freq: 2400, q: 0.8 });
+        },
+        minimize: function () { tone(820, { dur: 0.2, gain: 0.10, to: 250 }); },
+        restore: function () { tone(280, { dur: 0.2, gain: 0.10, to: 860 }); },
+        close: function () {
+            tone(660, { dur: 0.18, gain: 0.09, to: 190 });
+            noise({ dur: 0.16, gain: 0.04, freq: 900, q: 0.6 });
+        },
+        maximize: function () { tone(520, { dur: 0.18, gain: 0.09, to: 1040 }); },
+        error: function () {
+            tone(184, { type: 'square', dur: 0.11, gain: 0.07 });
+            tone(150, { type: 'square', dur: 0.14, gain: 0.07, at: 0.14 });
+        },
+        del: function () {
+            noise({ dur: 0.34, gain: 0.30, freq: 520, q: 0.5, type: 'lowpass' });
+            tone(220, { type: 'triangle', dur: 0.3, gain: 0.13, to: 70 });
+            noise({ dur: 0.5, gain: 0.08, freq: 3800, q: 0.9, type: 'highpass', at: 0.05 });
+        },
+        trash: function () { noise({ dur: 0.18, gain: 0.09, freq: 4200, q: 0.9, type: 'highpass' }); },
+        reveal: function () {
+            [659.25, 987.77].forEach(function (f, i) {
+                tone(f, { type: 'triangle', dur: 0.5, gain: 0.11, at: i * 0.09 });
+            });
+        },
+        setMute: function (m) {
+            muted = !!m;
+            if (master && ctx) {
+                try { master.gain.linearRampToValueAtTime(muted ? 0 : 0.42, ctx.currentTime + 0.25); } catch (e) {}
+            }
+            return muted;
+        },
+        toggleMute: function () { return this.setMute(!muted); }
+    };
+})();
+
+/* =========================================================================
+   应用定义与状态
+   ========================================================================= */
+const TASKBAR_H = 48;
+
+// 资源版本号：改这个数字 = 让浏览器立刻重新拉取应用页面，避免旧的缓存
+const PAGE_VERSION = 3;
+function appPage(app) { return app.page + '?v=' + PAGE_VERSION; }
+
+const APPS = {
+    wechat:  { id: 'wechat',  name: '薇信',           icon: 'wechat.png',  page: 'wechat.html',   w: 1000, h: 660 },
+    tieba:   { id: 'tieba',   name: '贴吧',           icon: 'tieba.png',   page: 'tieba.html',    w: 940,  h: 680 },
+    recycle: { id: 'recycle', name: '回收站',         icon: 'recycle.png', page: 'recycle.html',  w: 820,  h: 540 },
+    jingyu:  { id: 'jingyu',  name: '静愈心理医院',   icon: 'jingyu.png',  page: 'jingyu.html',   w: 1120, h: 720, locked: true },
+    help:    { id: 'help',    name: '游戏说明',       icon: 'help.svg',    page: 'help.html',     w: 940,  h: 700 }
+};
+
+const ICON_ORDER = ['wechat', 'tieba', 'recycle', 'jingyu'];
+const GRID = 8;
+
+const desktopEl = document.getElementById('desktop');
+const iconLayer = document.getElementById('iconLayer');
+const winLayer = document.getElementById('windowLayer');
+const taskAppsEl = document.getElementById('taskApps');
+const startMenuEl = document.getElementById('startMenu');
+const startAppsEl = document.getElementById('startApps');
+const startBtn = document.getElementById('startBtn');
+const toastWrap = document.getElementById('toastWrap');
+
+let zTop = 200;
+const windows = new Map();      // appId -> window record
+const iconEls = new Map();      // appId -> icon element
+let focusedId = null;
+
+/* =========================================================================
+   工具函数
+   ========================================================================= */
+function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+function desktopRect() {
+    return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight - TASKBAR_H };
+}
+function ease() { return 'cubic-bezier(.22,1,.36,1)'; }
+function setAnim(el, ms, extra) {
+    el.style.transition =
+        'transform ' + ms + 'ms ' + ease() + ', ' +
+        'width ' + ms + 'ms ' + ease() + ', ' +
+        'height ' + ms + 'ms ' + ease() + ', ' +
+        'opacity ' + ms + 'ms ease, ' +
+        'filter ' + ms + 'ms ease' + (extra ? ', ' + extra : '');
+}
+function freeze(el) {
+    el.style.transition = 'none';
+    void el.offsetWidth;   // 强制重排，保证下一次过渡生效
+}
+function toast(msg, kind) {
+    const el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' ' + kind : '');
+    el.innerHTML = '<span>' + msg + '</span>';
+    toastWrap.appendChild(el);
+    setTimeout(function () {
+        el.classList.add('leaving');
+        setTimeout(function () { el.remove(); }, 300);
+    }, 2300);
+}
+
+/* =========================================================================
+   桌面图标
+   ========================================================================= */
+function savedPositions() {
+    try { return JSON.parse(localStorage.getItem('arg.iconPos') || '{}'); }
+    catch (e) { return {}; }
+}
+function savePositions() {
+    const out = {};
+    iconEls.forEach(function (el, id) {
+        out[id] = { x: parseFloat(el.dataset.x || 0), y: parseFloat(el.dataset.y || 0) };
+    });
+    try { localStorage.setItem('arg.iconPos', JSON.stringify(out)); } catch (e) {}
+}
+
+function buildIcons() {
+    const saved = savedPositions();
+    let slot = 0;
+    ICON_ORDER.forEach(function (id) {
+        const app = APPS[id];
+        const locked = app.locked && localStorage.getItem('unzipJingyu') !== 'true';
+
+        const el = document.createElement('div');
+        el.className = 'desktop-icon';
+        el.dataset.app = id;
+        el.innerHTML =
+            '<div class="icon-box"><img src="' + app.icon + '" alt="' + app.name + '"></div>' +
+            '<span>' + app.name + '</span>';
+        el.style.display = locked ? 'none' : 'block';
+
+        const pos = saved[id] || { x: 24, y: 22 + slot * 104 };
+        el.dataset.x = pos.x;
+        el.dataset.y = pos.y;
+        if (!locked) slot++;
+        el.style.transform = 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)';
+
+        makeIconInteractive(el, id);
+        iconLayer.appendChild(el);
+        iconEls.set(id, el);
+    });
+}
+
+function clampIcon(el) {
+    if (!el || el.style.display === 'none' || !el.offsetWidth) return;
+    const r = desktopRect();
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const x = clamp(parseFloat(el.dataset.x), 0, Math.max(0, r.w - w));
+    const y = clamp(parseFloat(el.dataset.y), 0, Math.max(0, r.h - h));
+    el.dataset.x = x;
+    el.dataset.y = y;
+    el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+}
+
+function iconCenter(id) {
+    const el = iconEls.get(id);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, rect: r };
+}
+
+function makeIconInteractive(el, id) {
+    let active = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0, pid = null;
+
+    el.addEventListener('pointerdown', function (e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        pid = e.pointerId;
+        try { el.setPointerCapture(pid); } catch (err) {}
+        active = true; moved = false;
+        sx = e.clientX; sy = e.clientY;
+        ox = parseFloat(el.dataset.x); oy = parseFloat(el.dataset.y);
+        freeze(el);
+        selectIcon(id);
+    });
+
+    el.addEventListener('pointermove', function (e) {
+        if (!active || e.pointerId !== pid) return;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (!moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+            moved = true;
+            el.classList.add('dragging');
+            SFX.hover();
+        }
+        if (!moved) return;
+        const r = desktopRect();
+        const x = clamp(ox + dx, 0, Math.max(0, r.w - el.offsetWidth));
+        const y = clamp(oy + dy, 0, Math.max(0, r.h - el.offsetHeight));
+        el.dataset.x = x; el.dataset.y = y;
+        el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+    });
+
+    function endDrag(e) {
+        if (!active || (e && e.pointerId !== pid)) return;
+        active = false;
+        try { el.releasePointerCapture(pid); } catch (err) {}
+        el.classList.remove('dragging');
+        if (moved) {
+            el.dataset.x = Math.round(parseFloat(el.dataset.x) / GRID) * GRID;
+            el.dataset.y = Math.round(parseFloat(el.dataset.y) / GRID) * GRID;
+            setAnim(el, 260);
+            clampIcon(el);
+            savePositions();
+            SFX.click();
+        }
+    }
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+
+    el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        selectIcon(id);
+        if (!moved) SFX.click();
+    });
+
+    el.addEventListener('dblclick', function (e) {
+        e.stopPropagation();
+        openApp(id);
+    });
+
+    // 触屏设备没有可靠的 dblclick，这里补一个双击判定
+    let lastTap = 0;
+    el.addEventListener('pointerup', function (e) {
+        if (e.pointerType === 'mouse') return;
+        if (moved) return;
+        const now = Date.now();
+        if (now - lastTap < 420) { openApp(id); lastTap = 0; }
+        else lastTap = now;
+    });
+
+    // 键盘可达：Tab 选中图标后回车打开
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', app_name(id));
+    el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openApp(id);
+        }
+    });
+}
+
+function app_name(id) {
+    return (APPS[id] && APPS[id].name) || id;
+}
+
+function selectIcon(id) {
+    iconEls.forEach(function (el, key) {
+        el.classList.toggle('selected', key === id);
+    });
+}
+
+function revealJingyuIcon(silent) {
+    const el = iconEls.get('jingyu');
+    if (!el || el.style.display !== 'none') return;
+    const saved = savedPositions();
+    const pos = saved.jingyu || { x: 24, y: 22 + 3 * 104 };
+    el.dataset.x = pos.x; el.dataset.y = pos.y;
+    el.style.transform = 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)';
+    el.style.display = 'block';
+    el.classList.add('born');
+    setTimeout(function () { el.classList.remove('born'); }, 2800);
+    if (!silent) {
+        SFX.reveal();
+        toast('新应用已解压：<b>静愈心理医院</b>', 'ok');
+    }
+}
+
+/* =========================================================================
+   窗口管理
+   ========================================================================= */
+function cascadeRect(w, h) {
+    const r = desktopRect();
+    const n = windows.size;
+    const maxW = Math.max(320, r.w - 40);
+    const maxH = Math.max(240, r.h - 40);
+    const width = Math.min(w, maxW);
+    const height = Math.min(h, maxH);
+    const baseX = Math.max(20, (r.w - width) / 2);
+    const baseY = Math.max(16, (r.h - height) / 2 - 20);
+    const off = (n % 5) * 28;
+    return {
+        x: clamp(baseX + off - 56, 8, Math.max(8, r.w - width - 8)),
+        y: clamp(baseY + off - 40, 8, Math.max(8, r.h - height - 8)),
+        w: width,
+        h: height
+    };
+}
+
+function openApp(id) {
+    const app = APPS[id];
+    if (!app) return;
+    if (windows.has(id)) {
+        const w = windows.get(id);
+        if (w.minimized) restoreWindow(w);
+        focusWindow(w);
+        flashTask(id);
+        return;
+    }
+
+    const rect = cascadeRect(app.w, app.h);
+    const el = document.createElement('div');
+    el.className = 'win';
+    el.style.width = rect.w + 'px';
+    el.style.height = rect.h + 'px';
+    el.style.transformOrigin = '0 0';
+    el.style.transform = 'translate3d(' + rect.x + 'px,' + (rect.y + 18) + 'px,0) scale(.94)';
+    el.style.opacity = '0';
+
+    el.innerHTML =
+        '<div class="win-chrome">' +
+            '<img src="' + app.icon + '" alt="">' +
+            '<div class="win-title">' + app.name + '</div>' +
+            '<span class="win-lock-chip">🔒 已锁定</span>' +
+            '<div class="win-actions">' +
+                '<button class="wa wa-min" title="最小化" aria-label="最小化">' +
+                    '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">' +
+                        '<path d="M2 6.2h8"/>' +
+                    '</svg>' +
+                '</button>' +
+                '<button class="wa wa-max" title="最大化 / 还原" aria-label="最大化">' +
+                    '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">' +
+                        '<rect x="2.2" y="2.2" width="7.6" height="7.6" rx="1.4"/>' +
+                    '</svg>' +
+                '</button>' +
+                '<button class="wa wa-close" title="关闭" aria-label="关闭">' +
+                    '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+                        '<path d="M3 3l6 6M9 3l-6 6"/>' +
+                    '</svg>' +
+                '</button>' +
+            '</div>' +
+        '</div>' +
+        '<div class="win-body">' +
+            '<div class="win-loading">正在载入…</div>' +
+            '<iframe src="' + appPage(app) + '" allow="camera; microphone; autoplay; fullscreen; clipboard-write"></iframe>' +
+        '</div>' +
+        '<div class="win-resize" title="拖动调整窗口大小"></div>';
+
+    winLayer.appendChild(el);
+
+    const rec = {
+        id: id, app: app, el: el,
+        iframe: el.querySelector('iframe'),
+        loading: el.querySelector('.win-loading'),
+        titleEl: el.querySelector('.win-title'),
+        chrome: el.querySelector('.win-chrome'),
+        resize: el.querySelector('.win-resize'),
+        btnMin: el.querySelector('.wa-min'),
+        btnMax: el.querySelector('.wa-max'),
+        btnClose: el.querySelector('.wa-close'),
+        x: rect.x, y: rect.y, w: rect.w, h: rect.h,
+        minimized: false, maximized: false, prev: null,
+        taskEl: null, closing: false, locked: false
+    };
+    windows.set(id, rec);
+
+    bindWindowDrag(rec);
+    bindFrame(rec);
+
+    rec.btnMin.addEventListener('click', function (e) { e.stopPropagation(); SFX.click(); minimizeWindow(rec); });
+    rec.btnMax.addEventListener('click', function (e) { e.stopPropagation(); SFX.click(); toggleMaximize(rec); });
+    rec.btnClose.addEventListener('click', function (e) { e.stopPropagation(); SFX.click(); closeWindow(rec); });
+
+    guardIframeNavigation(rec);
+    buildTaskButton(rec);
+
+    requestAnimationFrame(function () {
+        setAnim(el, 420);
+        el.style.transform = 'translate3d(' + rect.x + 'px,' + rect.y + 'px,0) scale(1)';
+        el.style.opacity = '1';
+    });
+
+    focusWindow(rec);
+    SFX.open();
+    renderStartMenu();
+}
+
+function guardIframeNavigation(rec) {
+    rec.iframe.addEventListener('load', function () {
+        let path = '';
+        try { path = rec.iframe.contentWindow.location.pathname; } catch (e) { return; }
+        const file = (path.split('/').pop() || '').toLowerCase();
+        if (file === 'index.html' || file === '') {
+            // 子页面里的“最小化”按钮会跳回桌面，在窗口里要拦下来
+            minimizeWindow(rec);
+            setTimeout(function () {
+                try { rec.iframe.src = appPage(rec.app); } catch (e) {}
+            }, 60);
+            return;
+        }
+
+        /* god 之后的流程是单向的：一旦走进去，这个窗口就锁上 ——
+           不能最小化、不能关闭、也拖不进回收站，
+           直到看完一个结局才解封。 */
+        if (LOCKED_PAGES.test(file)) setWindowLock(rec, true);
+        else if (ENDING_PAGES.test(file)) setWindowLock(rec, false);
+
+        // 结局 / 演出页面自动全屏，保证沉浸感
+        if (/^(real1|real2|self_end1|self_end2|uuu|egg|wugan1|god|eye|yanguang|black)\.html$/.test(file)) {
+            if (!rec.maximized) toggleMaximize(rec, true);
+        }
+    });
+}
+
+/* 进入 god 之后的所有页面 —— 单向区，不允许回到桌面或正常医院界面 */
+const LOCKED_PAGES = /^(god|eye|yanguang|inside|ji|self|other|shencongliang|xueyue|zhennian|wangnian|enian|wuguanshangshen|lushen|kill)\.html$/;
+/* 走到结局就算走完了这一段，窗口解封 */
+const ENDING_PAGES = /^(real1|real2|self_end1|self_end2|uuu|egg)\.html$/;
+
+function setWindowLock(rec, locked) {
+    if (rec.locked === locked) return;
+    rec.locked = locked;
+    rec.el.classList.toggle('win-locked', locked);
+    if (rec.btnMin) rec.btnMin.title = locked ? '此页面已锁定' : '最小化';
+    if (rec.btnClose) rec.btnClose.title = locked ? '这段故事走完前无法关闭' : '关闭';
+    if (locked) {
+        SFX.close();
+        toast('画面已经不对了 —— 这个窗口被锁住了', 'warn');
+    }
+}
+
+function lockDenied(rec) {
+    SFX.error();
+    try {
+        rec.el.animate(
+            [{ transform: rec.el.style.transform + ' translateX(-8px)' },
+             { transform: rec.el.style.transform + ' translateX(8px)' },
+             { transform: rec.el.style.transform }],
+            { duration: 420, easing: 'cubic-bezier(.36,.07,.19,.97)' }
+        );
+    } catch (e) {}
+    toast('这段故事还没有结束，暂时回不去', 'warn');
+}
+
+function bindFrame(rec) {
+    const iframe = rec.iframe;
+
+    function hookInner() {
+        let doc = null;
+        try { doc = iframe.contentDocument; } catch (e) { return; }
+        if (!doc || doc.__argHooked) return;
+        doc.__argHooked = true;
+
+        // 隐藏子页面自带的标题栏，统一使用桌面窗口的标题栏
+        const style = doc.createElement('style');
+        style.textContent =
+            '.win-titlebar{display:none !important;}' +
+            'html,body{height:100% !important;}' +
+            '.wechat-wrap{height:100% !important;}' +
+            '.win-frame{height:100% !important;}' +
+            '::-webkit-scrollbar{width:10px;height:10px;}' +
+            '::-webkit-scrollbar-thumb{background:rgba(120,140,180,.55);border-radius:6px;}' +
+            '::-webkit-scrollbar-track{background:transparent;}';
+        doc.head.appendChild(style);
+
+        // 拦截子页面内的“最小化 / 返回桌面”按钮
+        doc.addEventListener('click', function (ev) {
+            const t = ev.target;
+            if (t && t.closest && t.closest('.win-btn-min')) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                minimizeWindow(rec);
+            }
+        }, true);
+
+        try {
+            if (doc.title) rec.titleEl.textContent = doc.title;
+        } catch (e) {}
+    }
+
+    iframe.addEventListener('load', function () {
+        hookInner();
+        rec.loading.classList.add('hide');
+        setTimeout(function () { rec.loading.style.display = 'none'; }, 320);
+        // 把当前的静音状态同步给刚载入的应用
+        try {
+            iframe.contentWindow.postMessage({ type: 'arg-mute', muted: muted }, '*');
+        } catch (e) {}
+    });
+    hookInner();
+}
+
+/* ---------------- 拖动窗口 ---------------- */
+function bindWindowDrag(rec) {
+    let active = false, sx = 0, sy = 0, ox = 0, oy = 0, pid = null;
+
+    rec.chrome.addEventListener('pointerdown', function (e) {
+        if (e.target.closest && e.target.closest('.wa')) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        pid = e.pointerId;
+        try { rec.chrome.setPointerCapture(pid); } catch (err) {}
+        focusWindow(rec);
+        if (rec.maximized) {
+            // 从最大化状态拖动 = 还原到原始尺寸并跟随鼠标
+            const ratio = (e.clientX - desktopRect().x) / Math.max(1, window.innerWidth);
+            restoreFromMax(rec);
+            const nx = clamp(e.clientX - rec.w * ratio, 0, Math.max(0, desktopRect().w - rec.w));
+            rec.x = nx;
+            rec.y = Math.max(0, e.clientY - 19);
+            freeze(rec.el);
+            rec.el.style.transform = 'translate3d(' + rec.x + 'px,' + rec.y + 'px,0)';
+        }
+        active = true;
+        sx = e.clientX; sy = e.clientY;
+        ox = rec.x; oy = rec.y;
+        rec.el.style.cursor = 'grabbing';
+        winLayer.classList.add('dragging-win');
+        e.preventDefault();
+    });
+
+    rec.chrome.addEventListener('pointermove', function (e) {
+        if (!active || e.pointerId !== pid) return;
+        const r = desktopRect();
+        rec.x = clamp(ox + (e.clientX - sx), -rec.w * 0.35, Math.max(0, r.w - rec.w * 0.35));
+        rec.y = clamp(oy + (e.clientY - sy), 0, Math.max(0, r.h - 40));
+        rec.el.style.transform = 'translate3d(' + rec.x + 'px,' + rec.y + 'px,0)';
+        checkTrashTarget(rec, e.clientX, e.clientY);
+    });
+
+    function end(e) {
+        if (!active || (e && e.pointerId !== pid)) return;
+        active = false;
+        try { rec.chrome.releasePointerCapture(pid); } catch (err) {}
+        rec.el.style.cursor = '';
+        winLayer.classList.remove('dragging-win');
+
+        const overTrash = isOverTrash(e ? e.clientX : -1, e ? e.clientY : -1);
+        rec.el.classList.remove('trash-armed');
+        const trashIcon = iconEls.get('recycle');
+        if (trashIcon) trashIcon.classList.remove('trash-hot');
+
+        if (overTrash) { deleteWindow(rec); return; }
+
+        // 吸附回桌面可视范围
+        const r = desktopRect();
+        const nx = clamp(rec.x, -rec.w + 120, r.w - 120);
+        const ny = clamp(rec.y, 0, Math.max(0, r.h - 44));
+        if (nx !== rec.x || ny !== rec.y) {
+            setAnim(rec.el, 280);
+            rec.x = nx; rec.y = ny;
+            rec.el.style.transform = 'translate3d(' + nx + 'px,' + ny + 'px,0)';
+        }
+        if (e) SFX.click();
+    }
+    rec.chrome.addEventListener('pointerup', end);
+    rec.chrome.addEventListener('pointercancel', end);
+
+    // 双击标题栏 = 最大化 / 还原（和系统窗口一样的习惯）
+    rec.chrome.addEventListener('dblclick', function (e) {
+        if (e.target.closest && e.target.closest('.wa')) return;
+        SFX.click();
+        toggleMaximize(rec);
+    });
+
+    rec.el.addEventListener('pointerdown', function () { focusWindow(rec); }, true);
+
+    /* ---------------- 右下角拖拽缩放 ---------------- */
+    var rzActive = false, rzX = 0, rzY = 0, rzW = 0, rzH = 0, rzPid = null;
+
+    rec.resize.addEventListener('pointerdown', function (e) {
+        if (rec.maximized || rec.closing) return;
+        rzPid = e.pointerId;
+        try { rec.resize.setPointerCapture(rzPid); } catch (err) {}
+        rzActive = true;
+        rzX = e.clientX; rzY = e.clientY;
+        rzW = rec.w; rzH = rec.h;
+        freeze(rec.el);
+        focusWindow(rec);
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    rec.resize.addEventListener('pointermove', function (e) {
+        if (!rzActive || e.pointerId !== rzPid) return;
+        var r = desktopRect();
+        var minW = Math.min(420, r.w - 20);
+        var minH = Math.min(300, r.h - 20);
+        var w = clamp(rzW + (e.clientX - rzX), minW, Math.max(minW, r.w - rec.x));
+        var h = clamp(rzH + (e.clientY - rzY), minH, Math.max(minH, r.h - rec.y));
+        rec.w = w; rec.h = h;
+        rec.el.style.width = w + 'px';
+        rec.el.style.height = h + 'px';
+    });
+
+    function endResize(e) {
+        if (!rzActive || (e && e.pointerId !== rzPid)) return;
+        rzActive = false;
+        try { rec.resize.releasePointerCapture(rzPid); } catch (err) {}
+        SFX.click();
+        rec.prev = { x: rec.x, y: rec.y, w: rec.w, h: rec.h };
+    }
+    rec.resize.addEventListener('pointerup', endResize);
+    rec.resize.addEventListener('pointercancel', endResize);
+}
+
+function isOverTrash(x, y) {
+    const c = iconCenter('recycle');
+    if (!c || x < 0) return false;
+    const el = iconEls.get('recycle');
+    if (!el || el.style.display === 'none') return false;
+    const r = c.rect;
+    const pad = 26;
+    return x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad;
+}
+
+function checkTrashTarget(rec, x, y) {
+    const hot = isOverTrash(x, y);
+    rec.el.classList.toggle('trash-armed', hot);
+    const trashIcon = iconEls.get('recycle');
+    if (trashIcon) {
+        const wasHot = trashIcon.classList.contains('trash-hot');
+        trashIcon.classList.toggle('trash-hot', hot);
+        if (hot && !wasHot) SFX.trash();
+    }
+}
+
+/* ---------------- 最小化 / 还原 / 最大化 ---------------- */
+function minimizeWindow(rec) {
+    if (arguments.length < 2 && rec.locked) { lockDenied(rec); return; }
+    if (rec.minimized || rec.closing) return;
+    rec.minimized = true;
+    const tb = rec.taskEl ? rec.taskEl.getBoundingClientRect() : { left: 60, top: window.innerHeight - 24, width: 80, height: 34 };
+    const scale = 0.06;
+    const tx = tb.left + tb.width / 2 - rec.w * scale / 2;
+    const ty = tb.top + tb.height / 2 - rec.h * scale / 2;
+
+    freeze(rec.el);
+    setAnim(rec.el, 360);
+    rec.el.style.transformOrigin = '0 0';
+    rec.el.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0) scale(' + scale + ')';
+    rec.el.style.opacity = '0';
+    rec.el.style.filter = 'blur(3px)';
+    rec.el.style.pointerEvents = 'none';
+    SFX.minimize();
+    markTaskState(rec);
+    setTimeout(function () {
+        if (rec.minimized) rec.el.style.visibility = 'hidden';
+    }, 360);
+    focusNextVisible(rec);
+}
+
+function restoreWindow(rec) {
+    rec.minimized = false;
+    rec.el.style.visibility = 'visible';
+    freeze(rec.el);
+    setAnim(rec.el, 400);
+    rec.el.style.transform = 'translate3d(' + rec.x + 'px,' + rec.y + 'px,0) scale(1)';
+    rec.el.style.opacity = '1';
+    rec.el.style.filter = 'none';
+    rec.el.style.pointerEvents = 'auto';
+    SFX.restore();
+    markTaskState(rec);
+    focusWindow(rec);
+}
+
+function toggleMaximize(rec, silent) {
+    if (rec.closing) return;
+    const r = desktopRect();
+    if (!rec.maximized) {
+        rec.prev = { x: rec.x, y: rec.y, w: rec.w, h: rec.h };
+        rec.maximized = true;
+        freeze(rec.el);
+        setAnim(rec.el, 360);
+        rec.el.style.transform = 'translate3d(0px,0px,0)';
+        rec.el.style.width = r.w + 'px';
+        rec.el.style.height = r.h + 'px';
+        rec.x = 0; rec.y = 0; rec.w = r.w; rec.h = r.h;
+        if (!silent) SFX.maximize();
+    } else {
+        restoreFromMax(rec);
+        if (!silent) SFX.minimize();
+    }
+}
+
+function restoreFromMax(rec) {
+    if (!rec.maximized) return;
+    const p = rec.prev || cascadeRect(rec.app.w, rec.app.h);
+    rec.maximized = false;
+    freeze(rec.el);
+    setAnim(rec.el, 340);
+    rec.el.style.width = p.w + 'px';
+    rec.el.style.height = p.h + 'px';
+    rec.el.style.transform = 'translate3d(' + p.x + 'px,' + p.y + 'px,0)';
+    rec.x = p.x; rec.y = p.y; rec.w = p.w; rec.h = p.h;
+}
+
+/* ---------------- 关闭 / 删除 ---------------- */
+function closeWindow(rec, quiet) {
+    const force = arguments.length > 2 && arguments[2];
+    if (rec.locked && !force) { lockDenied(rec); return; }
+    if (rec.closing) return;
+    rec.closing = true;
+    freeze(rec.el);
+    setAnim(rec.el, 300);
+    rec.el.style.transform = 'translate3d(' + rec.x + 'px,' + (rec.y + 14) + 'px,0) scale(.9)';
+    rec.el.style.opacity = '0';
+    rec.el.style.filter = 'blur(6px)';
+    if (!quiet) SFX.close();
+    if (rec.taskEl) {
+        rec.taskEl.classList.add('leaving');
+    }
+    setTimeout(function () {
+        if (rec.taskEl) rec.taskEl.remove();
+        rec.el.remove();
+        windows.delete(rec.id);
+        renderStartMenu();
+        if (focusedId === rec.id) focusedId = null;
+        focusNextVisible(null);
+    }, 310);
+}
+
+function shards(rect) {
+    const n = 18;
+    for (let i = 0; i < n; i++) {
+        const s = document.createElement('div');
+        s.className = 'shard';
+        const size = 4 + Math.random() * 9;
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = (rect.left + Math.random() * rect.width) + 'px';
+        s.style.top = (rect.top + Math.random() * rect.height) + 'px';
+        s.style.background = 'hsl(' + (200 + Math.random() * 60) + ',85%,' + (58 + Math.random() * 20) + '%)';
+        document.body.appendChild(s);
+        const dx = (Math.random() - 0.5) * 260;
+        const dy = (Math.random() - 0.5) * 220 + 60;
+        s.animate(
+            [
+                { transform: 'translate3d(0,0,0) scale(1) rotate(0deg)', opacity: 1 },
+                { transform: 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(.2) rotate(' + (Math.random() * 720 - 360) + 'deg)', opacity: 0 }
+            ],
+            { duration: 620 + Math.random() * 260, easing: 'cubic-bezier(.22,1,.36,1)' }
+        );
+        setTimeout(function () { s.remove(); }, 950);
+    }
+}
+
+function deleteWindow(rec) {
+    if (rec.locked) { lockDenied(rec); return; }
+    if (rec.closing) return;
+    rec.closing = true;
+
+    const trash = iconCenter('recycle');
+    const r = rec.el.getBoundingClientRect();
+    shards(r);
+
+    // 缩放到 5% 后以左上角为原点，位移需要补上缩放后尺寸的一半才能正对回收站
+    const targetX = trash ? trash.x - rec.w * 0.025 : rec.x;
+    const targetY = trash ? trash.y - rec.h * 0.025 : rec.y;
+
+    freeze(rec.el);
+    setAnim(rec.el, 460);
+    rec.el.style.transform =
+        'translate3d(' + targetX + 'px,' + targetY + 'px,0) scale(.05) rotate(-14deg)';
+    rec.el.style.opacity = '0';
+    rec.el.style.filter = 'blur(9px) saturate(.4)';
+    SFX.del();
+
+    const trashIcon = iconEls.get('recycle');
+    if (trashIcon) {
+        trashIcon.classList.remove('trash-hot');
+        trashIcon.classList.add('eating');
+        setTimeout(function () { trashIcon.classList.remove('eating'); }, 640);
+    }
+    toast('已将「' + rec.app.name + '」拖入回收站', 'warn');
+
+    if (rec.taskEl) rec.taskEl.classList.add('leaving');
+    setTimeout(function () {
+        if (rec.taskEl) rec.taskEl.remove();
+        rec.el.remove();
+        windows.delete(rec.id);
+        renderStartMenu();
+        if (focusedId === rec.id) focusedId = null;
+        focusNextVisible(null);
+    }, 470);
+}
+
+/* ---------------- 焦点 ---------------- */
+function focusWindow(rec) {
+    if (rec.minimized) return;
+    focusedId = rec.id;
+    windows.forEach(function (w) {
+        w.el.classList.toggle('focused', w.id === rec.id);
+    });
+    rec.el.style.zIndex = ++zTop;
+    refreshTaskStates();
+}
+
+function focusNextVisible(exclude) {
+    let best = null;
+    windows.forEach(function (w) {
+        if (w === exclude || w.minimized || w.closing) return;
+        if (!best || parseInt(w.el.style.zIndex || 0) > parseInt(best.el.style.zIndex || 0)) best = w;
+    });
+    if (best) focusWindow(best);
+    else {
+        focusedId = null;
+        windows.forEach(function (w) { w.el.classList.remove('focused'); });
+    }
+}
+
+/* =========================================================================
+   任务栏
+   ========================================================================= */
+function buildTaskButton(rec) {
+    if (rec.taskEl) return;
+    const el = document.createElement('div');
+    el.className = 'task-app-item entering';
+    el.innerHTML = '<img src="' + rec.app.icon + '" alt=""><span class="tt">' + rec.app.name + '</span>';
+    el.addEventListener('click', function () {
+        SFX.click();
+        if (rec.minimized) restoreWindow(rec);
+        else if (focusedId === rec.id) minimizeWindow(rec);
+        else focusWindow(rec);
+    });
+    taskAppsEl.appendChild(el);
+    rec.taskEl = el;
+    setTimeout(function () { el.classList.remove('entering'); }, 360);
+    markTaskState(rec);
+}
+
+function markTaskState(rec) {
+    if (!rec.taskEl) return;
+    rec.taskEl.classList.toggle('active', focusedId === rec.id && !rec.minimized);
+    rec.taskEl.classList.toggle('minimized', !!rec.minimized);
+}
+
+function refreshTaskStates() {
+    windows.forEach(markTaskState);
+}
+
+function flashTask(id) {
+    const rec = windows.get(id);
+    if (!rec || !rec.taskEl) return;
+    rec.taskEl.classList.remove('shake');
+    void rec.taskEl.offsetWidth;
+    rec.taskEl.classList.add('shake');
+    setTimeout(function () { rec.taskEl.classList.remove('shake'); }, 460);
+}
+
+/* =========================================================================
+   开始菜单
+   ========================================================================= */
+function renderStartMenu() {
+    startAppsEl.innerHTML = '';
+    ICON_ORDER.forEach(function (id) {
+        const app = APPS[id];
+        if (app.locked && localStorage.getItem('unzipJingyu') !== 'true') return;
+        const el = document.createElement('div');
+        el.className = 'start-item';
+        el.innerHTML = '<img src="' + app.icon + '" alt=""><span>' + app.name + '</span>';
+        el.addEventListener('click', function () {
+            SFX.click();
+            toggleStartMenu(false);
+            openApp(id);
+        });
+        startAppsEl.appendChild(el);
+    });
+    renderProgress();
+}
+
+/* 结局收集进度 */
+const TOTAL_ENDINGS = 6;
+function endingCount() {
+    try {
+        const arr = JSON.parse(localStorage.getItem('arg.endings') || '[]');
+        return Array.isArray(arr) ? Math.min(TOTAL_ENDINGS, new Set(arr).size) : 0;
+    } catch (e) { return 0; }
+}
+
+function renderProgress() {
+    const el = document.getElementById('smProgress');
+    if (!el) return;
+    const n = endingCount();
+    el.innerHTML =
+        '结局收集 <b>' + n + '</b> / ' + TOTAL_ENDINGS +
+        '<span class="sm-bar"><i style="width:' + (n / TOTAL_ENDINGS * 100) + '%"></i></span>';
+}
+
+function toggleStartMenu(force) {
+    const show = force === undefined ? !startMenuEl.classList.contains('show') : force;
+
+    // 剧情锁定期间不开放开始菜单 —— 否则可以从这里再开一个应用绕回桌面
+    if (show && hasLockedWindow()) {
+        SFX.error();
+        toast('这段故事还没有走完，暂时回不去了', 'warn');
+        return;
+    }
+
+    startMenuEl.classList.toggle('show', show);
+    startBtn.classList.toggle('active', show);
+    if (show) SFX.hover();
+}
+
+function hasLockedWindow() {
+    let found = false;
+    windows.forEach(function (w) { if (w.locked) found = true; });
+    return found;
+}
+
+startBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    SFX.click();
+    toggleStartMenu();
+});
+
+document.getElementById('smLock').addEventListener('click', function () {
+    toggleStartMenu(false);
+    SFX.close();
+    lockScreen();
+});
+
+document.getElementById('smCloseAll').addEventListener('click', function () {
+    toggleStartMenu(false);
+    const all = Array.from(windows.values());
+    if (!all.length) { SFX.error(); toast('当前没有打开的窗口'); return; }
+
+    const locked = all.filter(function (w) { return w.locked; });
+    const list = all.filter(function (w) { return !w.minimized && !w.locked; });
+    if (!list.length) {
+        SFX.error();
+        toast('剩下的窗口都被锁住了', 'warn');
+        return;
+    }
+    let i = 0;
+    (function step() {
+        if (i >= list.length) {
+            toast(locked.length ? '已关闭可关闭的窗口（有 ' + locked.length + ' 个被锁住）' : '已关闭全部窗口', 'ok');
+            return;
+        }
+        closeWindow(list[i++], true);
+        setTimeout(step, 90);
+    })();
+    SFX.close();
+});
+
+/* ---------------- 游戏说明 ---------------- */
+document.getElementById('smHelp').addEventListener('click', function () {
+    toggleStartMenu(false);
+    SFX.click();
+    openApp('help');
+});
+
+/* ---------------- 重置进度（需要点两次确认） ---------------- */
+let resetArmed = false, resetTimer = null;
+document.getElementById('smReset').addEventListener('click', function () {
+    toggleStartMenu(false);
+
+    if (!resetArmed) {
+        resetArmed = true;
+        SFX.error();
+        toast('再点一次就会清空存档（结局收集会保留）', 'warn');
+        resetTimer = setTimeout(function () { resetArmed = false; }, 4500);
+        return;
+    }
+
+    resetArmed = false;
+    clearTimeout(resetTimer);
+    try {
+        localStorage.removeItem('unzipJingyu');
+        localStorage.removeItem('shenMsgSent');
+        sessionStorage.removeItem('argUnlocked');
+    } catch (e) {}
+    SFX.del();
+    toast('进度已重置，正在重新载入…', 'ok');
+    setTimeout(function () { location.reload(); }, 900);
+});
+
+/* ---------------- 托盘：静音开关 ---------------- */
+let muted = false;
+try { muted = localStorage.getItem('arg.muted') === '1'; } catch (e) {}
+
+function setMuted(m, silent) {
+    muted = !!m;
+    try { localStorage.setItem('arg.muted', muted ? '1' : '0'); } catch (e) {}
+    SFX.setMute(muted);
+
+    const icon = document.getElementById('traySound');
+    if (icon) {
+        icon.textContent = muted ? '🔇' : '🔊';
+        icon.classList.toggle('off', muted);
+        icon.title = muted ? '已静音，点击恢复声音' : '点击静音';
+    }
+    windows.forEach(function (w) {
+        try { w.iframe.contentWindow.postMessage({ type: 'arg-mute', muted: muted }, '*'); } catch (e) {}
+    });
+    if (!silent) toast(muted ? '已静音（含所有应用内的音效）' : '已恢复声音');
+}
+
+document.getElementById('traySound').addEventListener('click', function (e) {
+    e.stopPropagation();
+    SFX.click();
+    const next = !muted;
+    setMuted(next, true);
+    toast(next ? '已静音（包含所有应用里的音效）' : '已恢复声音');
+    if (!next) setTimeout(function () { SFX.restore(); }, 280);
+});
+
+document.addEventListener('click', function (e) {
+    if (!startMenuEl.contains(e.target) && !startBtn.contains(e.target)) toggleStartMenu(false);
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') toggleStartMenu(false);
+});
+
+desktopEl.addEventListener('click', function () {
+    selectIcon(null);
+});
+
+/* =========================================================================
+   锁屏
+   ========================================================================= */
+const CORRECT_PWD = '20090404';
+const lockScreenEl = document.getElementById('lockScreen');
+const lockInput = document.getElementById('lockInput');
+const lockBtn = document.getElementById('lockBtn');
+const lockTip = document.getElementById('lockTip');
+const lockField = document.getElementById('lockField');
+const lockTimeEl = document.getElementById('lockTime');
+const lockDateEl = document.getElementById('lockDate');
+let wrongCount = 0;
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function updateClocks() {
+    const d = new Date();
+    const hh = pad(d.getHours()), mm = pad(d.getMinutes());
+    document.getElementById('clockTime').textContent = hh + ':' + mm;
+    document.getElementById('clockDate').textContent = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+    lockTimeEl.textContent = hh + ':' + mm;
+    lockDateEl.textContent = d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日';
+}
+setInterval(updateClocks, 1000);
+
+function tryUnlock() {
+    const val = (lockInput.value || '').trim();
+    if (val === CORRECT_PWD) {
+        lockTip.textContent = '解锁成功，正在进入桌面…';
+        lockTip.classList.add('show', 'ok');
+        lockBtn.classList.add('ok');
+        SFX.unlock();
+        setTimeout(hideLock, 620);
+    } else {
+        wrongCount++;
+        lockField.classList.remove('wrong');
+        void lockField.offsetWidth;
+        lockField.classList.add('wrong');
+        lockTip.textContent = '密码错误，请重新输入' + (wrongCount >= 3 ? '（提示：8 位生日数字）' : '');
+        lockTip.classList.add('show');
+        lockTip.classList.remove('ok');
+        lockInput.value = '';
+        lockInput.focus();
+        SFX.error();
+    }
+}
+
+function hideLock() {
+    lockScreenEl.classList.add('unlocked');
+    try { sessionStorage.setItem('argUnlocked', '1'); } catch (e) {}
+    setTimeout(function () {
+        lockScreenEl.style.display = 'none';
+        cascadeIcons();
+        showFirstRunHint();
+    }, 720);
+}
+
+/* 第一次进入时提示桌面操作方法 */
+function showFirstRunHint() {
+    let seen = false;
+    try { seen = localStorage.getItem('arg.desktopHint') === '1'; } catch (e) {}
+    if (seen) return;
+    try { localStorage.setItem('arg.desktopHint', '1'); } catch (e) {}
+    setTimeout(function () { toast('双击图标打开应用', 'ok'); }, 900);
+    setTimeout(function () { toast('拖动窗口标题栏可以移动，拖到回收站即可删除'); }, 3000);
+    setTimeout(function () { toast('窗口右上角可以最小化 / 最大化 / 关闭'); }, 5200);
+}
+
+function showLock() {
+    lockScreenEl.style.display = 'flex';
+    requestAnimationFrame(function () { lockScreenEl.classList.remove('unlocked'); });
+    lockInput.value = '';
+    lockTip.classList.remove('show', 'ok');
+    lockBtn.classList.remove('ok');
+    setTimeout(function () { lockInput.focus(); }, 260);
+}
+
+function lockScreen() {
+    showLock();
+    SFX.boot();
+}
+
+function cascadeIcons() {
+    let i = 0;
+    iconEls.forEach(function (el) {
+        if (el.style.display === 'none') return;
+        const y = parseFloat(el.dataset.y);
+        el.style.transition = 'none';
+        el.style.opacity = '0';
+        el.style.transform = 'translate3d(' + parseFloat(el.dataset.x) + 'px,' + (y + 22) + 'px,0) scale(.9)';
+        setTimeout(function () {
+            setAnim(el, 520);
+            el.style.opacity = '1';
+            el.style.transform = 'translate3d(' + parseFloat(el.dataset.x) + 'px,' + y + 'px,0) scale(1)';
+        }, 70 * i + 60);
+        i++;
+    });
+}
+
+lockBtn.addEventListener('click', tryUnlock);
+lockInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') tryUnlock();
+});
+
+/* =========================================================================
+   启动流程
+   ========================================================================= */
+buildIcons();
+renderStartMenu();
+updateClocks();
+setMuted(muted, true);   // 应用上次的静音设置
+
+document.addEventListener('pointerdown', function once() {
+    SFX.boot();
+    document.removeEventListener('pointerdown', once);
+}, { once: true });
+
+let unlockedBefore = false;
+try { unlockedBefore = sessionStorage.getItem('argUnlocked') === '1'; } catch (e) {}
+
+if (unlockedBefore) {
+    lockScreenEl.style.display = 'none';
+    cascadeIcons();
+    budgetTick();
+} else {
+    lockScreenEl.style.display = 'flex';
+    SFX.boot();
+    setTimeout(function () { lockInput.focus(); }, 700);
+}
+
+/* 监听解压完成：跨文档 localStorage 事件 + 轮询兜底 */
+window.addEventListener('storage', function (e) {
+    if (e.key === 'unzipJingyu' && e.newValue === 'true') {
+        revealJingyuIcon(false);
+        renderStartMenu();
+    }
+});
+
+/* 结局页请求“返回桌面”：关掉对应窗口，回到干净桌面 */
+window.addEventListener('message', function (e) {
+    if (!e.data || !e.data.type) return;
+
+    let sender = null;
+    windows.forEach(function (w) {
+        if (w.iframe && w.iframe.contentWindow === e.source) sender = w;
+    });
+
+    switch (e.data.type) {
+        case 'arg-desktop':
+            toggleStartMenu(false);
+            if (sender) {
+                // 结局页请求回到桌面：这里是剧情安排的出口，强制解封
+                setWindowLock(sender, false);
+                closeWindow(sender, false, true);
+                toast('调查结束，欢迎回到桌面', 'ok');
+            } else {
+                windows.forEach(function (w) { if (!w.minimized) minimizeWindow(w); });
+            }
+            break;
+
+        // 子页面自己发来的「最小化 / 返回桌面」
+        case 'arg-minimize':
+            if (sender) {
+                minimizeWindow(sender);
+                // 回执：子页面收到后就不必再做兜底跳转
+                try { if (e.source) e.source.postMessage({ type: 'arg-minimize-ok' }, '*'); } catch (err) {}
+            }
+            break;
+
+        // 子页面把标题同步过来，窗口标题栏实时更新
+        case 'arg-title':
+            if (sender && e.data.title) {
+                sender.titleEl.textContent = e.data.title;
+                if (sender.taskEl) {
+                    const tt = sender.taskEl.querySelector('.tt');
+                    if (tt) tt.textContent = e.data.title;
+                }
+            }
+            break;
+
+        // 结局页汇报「又看完一个结局」
+        case 'arg-ending':
+            renderProgress();
+            SFX.reveal();
+            toast('已记录结局 · 收集进度 <b>' + (e.data.count || 0) + ' / ' + TOTAL_ENDINGS + '</b>', 'ok');
+            break;
+
+        case 'arg-size':
+            if (sender) sender.inner = { w: e.data.w, h: e.data.h };
+            break;
+    }
+});
+
+let lastUnzip = localStorage.getItem('unzipJingyu');
+function budgetTick() {
+    const now = localStorage.getItem('unzipJingyu');
+    if (now !== lastUnzip) {
+        lastUnzip = now;
+        if (now === 'true') {
+            revealJingyuIcon(false);
+            renderStartMenu();
+        }
+    }
+}
+setInterval(budgetTick, 700);
+
+/* 窗口尺寸变化时保持布局 */
+let resizeTimer = null;
+window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+        iconEls.forEach(clampIcon);
+        const r = desktopRect();
+        windows.forEach(function (w) {
+            if (w.maximized) {
+                w.el.style.width = r.w + 'px';
+                w.el.style.height = r.h + 'px';
+                w.el.style.transform = 'translate3d(0,0,0)';
+                w.x = 0; w.y = 0; w.w = r.w; w.h = r.h;
+            } else {
+                w.x = clamp(w.x, -w.w + 120, r.w - 120);
+                w.y = clamp(w.y, 0, Math.max(0, r.h - 44));
+                freeze(w.el);
+                w.el.style.transform = 'translate3d(' + w.x + 'px,' + w.y + 'px,0)';
+            }
+        });
+    }, 140);
+});
+</script>
+</body>
+</html>

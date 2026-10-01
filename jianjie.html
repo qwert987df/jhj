@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医院简介 - 静愈心理医院</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+        }
+        /*窗口外壳，和项目统一*/
+        .win-frame{
+            width:100%;
+            height:100%;
+            display:flex;
+            flex-direction:column;
+        }
+        .win-titlebar{
+            height:32px;
+            background:#2b579a;
+            color:#ffffff;
+            display:flex;
+            align-items:center;
+            padding:0 10px;
+        }
+        .win-title{
+            flex:1;
+            font-size:13px;
+        }
+        .win-buttons{
+            display:flex;
+            gap:4px;
+        }
+        .win-btn{
+            width:26px;
+            height:26px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            font-size:14px;
+        }
+        .win-btn-min{
+            background:#4472b8;
+        }
+        /*主内容区域，本地背景*/
+        .main-container{
+            flex:1;
+            background: url("hospital_bg.jpg") center / cover no-repeat;
+            overflow:auto;
+        }
+        /*蓝色顶部头部原样保留*/
+        .top-header{
+            background:#165DFF;
+            color:#fff;
+            padding:14px 40px;
+        }
+        .hospital-name{
+            font-size:26px;
+            font-weight:bold;
+        }
+        .hospital-sub{
+            font-size:14px;
+            opacity:0.85;
+            margin-top:4px;
+        }
+        /*导航栏原样保留，带搜索*/
+        .nav-bar{
+            background:#ffffff;
+            border-bottom:1px solid #e5e7eb;
+            display:flex;
+            gap:36px;
+            padding:12px 40px;
+            align-items:center;
+            justify-content:space-between;
+        }
+        .nav-left{
+            display:flex;
+            gap:36px;
+        }
+        .nav-item{
+            font-size:15px;
+            color:#333;
+            cursor:pointer;
+        }
+        .nav-item:hover{
+            color:#165DFF;
+        }
+        .search-wrap{
+            display:flex;
+            gap:6px;
+        }
+        #search-input{
+            width:220px;
+            padding:6px 10px;
+            border:1px solid #cccccc;
+            border-radius:4px;
+            font-size:14px;
+            outline:none;
+        }
+        #search-btn{
+            padding:6px 14px;
+            background:#165DFF;
+            color:#fff;
+            border:none;
+            border-radius:4px;
+            cursor:pointer;
+            font-size:14px;
+        }
+
+        /*简介正文容器：整体居中，不顶头不顶格，最大宽度限制*/
+        .intro-wrap{
+            max-width:900px;
+            margin:40px auto;
+            padding:40px;
+            background:rgba(255,255,255,0.92);
+            border-radius:10px;
+        }
+        .intro-title{
+            text-align:center;
+            font-size:28px;
+            font-weight:bold;
+            color:#111;
+            margin-bottom:30px;
+        }
+        .intro-wrap p{
+            font-size:16px;
+            line-height:1.85;
+            color:#333;
+            margin-bottom:20px;
+            text-align:justify;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<div class="win-frame">
+    <div class="win-titlebar">
+        <div class="win-title">医院简介 - 静愈心理医院</div>
+        <div class="win-buttons">
+            <div class="win-btn win-btn-min" onclick="location.href='index.html'">−</div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="top-header">
+            <div class="hospital-name">静愈心理医院</div>
+            <div class="hospital-sub">精神心理专科 · 正规医疗机构</div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-left">
+                <div class="nav-item" onclick="location.href='jingyu.html'">医院首页</div>
+                <div class="nav-item" onclick="location.href='jianjie.html'">医院简介</div>
+                <div class="nav-item" onclick="location.href='keshi.html'">科室介绍</div>
+                <div class="nav-item" onclick="location.href='zhuanjia.html'">专家团队</div>
+                <div class="nav-item" onclick="location.href='jiuzhen.html'">就诊指南</div>
+                <div class="nav-item" onclick="location.href='contact.html'">联系我们</div>
+            </div>
+            <div class="search-wrap">
+                <input id="search-input" placeholder="请输入搜索内容">
+                <button id="search-btn">搜索</button>
+            </div>
+        </div>
+
+        <div class="intro-wrap">
+            <div class="intro-title">静愈心理医院简介</div>
+            <p>静愈心理医院是一所专注于精神心理健康，集医疗、评估、心理治疗、康复干预、心理健康科普于一体的现代化心理专科医院。医院秉持“静心疗愈，守护心灵”的办院理念，以尊重、接纳、人文关怀为底色，致力于为不同年龄群体提供专业、私密、有温度的全周期心理医疗服务。</p >
+
+            <p>医院汇聚精神科医师、心理治疗师、心理咨询师、康复治疗师、护理人员组成多学科诊疗团队，遵循循证医学规范，实行个体化诊疗方案。开设精神科门诊、临床心理科、静心科、青少年心理专科、睡眠障碍专科、家庭心理干预、心理康复等特色科室，可开展心理评估、药物治疗、各类心理治疗、物理干预、团体心理辅导、住院康复等服务项目。</p >
+
+            <p>其中静心科为本院特色专科。科室核心疗愈方式为蒙眼静心体验：在专业治疗师全程陪伴引导下，来访者蒙上双眼，隔绝外界视觉干扰，剥离纷繁的外部信息，向内觉察，放下头脑的思虑，全然感受自身的心跳、呼吸与内在情绪，和自己的内心深度对话。在黑暗安静的环境里，脱离外界评判，看见被忽略的自我情绪，释放内心积压的压力、焦虑与内耗，回归内心本真的平静，实现身心的安顿。</p >
+
+            <p>诊疗范围涵盖抑郁障碍、焦虑障碍、强迫障碍、双相情感障碍、睡眠障碍、青少年情绪与行为问题、社交恐惧、创伤后心理反应、适应障碍等常见精神心理问题。兼顾医疗干预与心理修复，兼顾个人与家庭系统，既重视症状改善，更关注心理功能恢复与社会适应能力重建。</p >
+
+            <p>院区环境安静舒适，注重保护来访者隐私，设置独立诊疗室、静心体验室、心理治疗室、康复活动空间，营造松弛安全的疗愈环境。医院严守医疗伦理，尊重每一位来访者，拒绝标签化对待，帮助来访者正视内心困境，缓解心理痛苦，重建内心力量，回归健康生活。</p >
+
+            <p>同时，医院积极面向学校、企事业单位开展心理健康科普宣讲、心理筛查、危机干预等公益服务，推动社会心理服务建设，普及心理健康知识，消除社会对心理疾病的偏见，助力大众心理健康水平提升。</p >
+
+            <p>静愈心理医院，以专业为基石，以共情为温度，愿做心灵的避风港，陪伴每一位来访者走向内心平和与生命自愈。</p >
+        </div>
+
+    </div>
+</div>
+
+<script>
+//====================开发者工具检测，检测到直接展示暂无信息====================
+let devToolOpened = false;
+const clearPage = () => {
+    if(devToolOpened) return;
+    devToolOpened = true;
+    document.body.innerHTML = `<div style="width:100%;height:100vh;display:flex;align-items:center;justify-content:center;font-size:22px;color:#666;">暂无信息</div>`;
+};
+
+function checkDevSize(){
+    // 处于窗口化桌面 / iframe 中时跳过尺寸检测，避免把正常窄窗口误判成开发者工具
+    if (window.top !== window.self) return;
+    const threshold = 150;
+    if (Math.abs(window.outerWidth - window.innerWidth) > threshold || Math.abs(window.outerHeight - window.innerHeight) > threshold) {
+        clearPage();
+    }
+}
+setInterval(checkDevSize, 400);
+
+(function() {
+    function debugTrap() {
+        try {
+            debugger;
+        } catch(e) {}
+    }
+    setInterval(debugTrap, 800);
+})();
+
+document.oncontextmenu = function(){return false;};
+document.onkeydown = function(e){
+    e = e || window.event;
+    if(e.keyCode===123) return false;
+    if(e.ctrlKey && e.keyCode===85) return false;
+    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74)) return false;
+};
+history.pushState(null, null, window.location.href);
+window.addEventListener('popstate',function(){
+    history.pushState(null,null,window.location.href);
+});
+//====================================================
+
+//搜索功能：两个关键词分别跳转不同页面
+const searchInput = document.querySelector('#search-input');
+const searchBtn = document.querySelector('#search-btn');
+
+function doSearch(){
+    const keyword = searchInput.value.trim();
+    if(!keyword){
+        alert("请输入搜索关键词");
+        return;
+    }
+    if(keyword === "静心科"){
+        location.href = "jxin.html";
+    }else if(keyword === "静心疗愈，守护心灵"){
+        location.href = "idea.html";
+    }else if(keyword === "18305564297806"){
+        location.href = "tel.html";
+    }else if(keyword === "god"){
+        location.href = "god.html";
+    }else if(keyword === "念头"){
+        location.href = "niantou.html";
+    }else if(keyword === "抑郁障碍"){
+        location.href = "yiyu.html";
+    }else if(keyword === "抑郁"){
+        location.href = "yiyu.html";
+    }else if(keyword === "心理修复"){
+        location.href = "heart.html";
+    }else if(keyword === "视觉干扰"){
+        location.href = "jxin.html";
+    }else if(keyword === "五感"){
+        location.href = "wugan.html";
+    }else if(keyword === "思维循环"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "思维"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "沈从良"){
+        location.href = "shen.html";
+    }else if(keyword === "王羽"){
+        location.href = "wangyu.html";
+    }else if(keyword === "林晚"){
+        location.href = "linwan.html";
+    }else if(keyword === "深度治疗"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "静心"){
+        location.href = "heart.html";
+    }else if(keyword === "heart"){
+        location.href = "heart.html";
+    }else if(keyword === "research"){
+        location.href = "research.html";
+    }else{
+        alert("搜索关键词：" + keyword);
+    }
+}
+searchBtn.addEventListener('click',doSearch);
+searchInput.addEventListener('keydown',e=>{
+    if(e.key === 'Enter') doSearch();
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

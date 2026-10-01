@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讣告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100vw;
+            min-height: 100vh;
+            overflow-y: auto;
+            background: url("wangyu_bg.jpg") no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            color:#ffffff;
+            padding:60px 20px;
+        }
+        .container {
+            max-width:620px;
+            margin:0 auto;
+            text-align:center;
+        }
+        .title {
+            font-size:40px;
+            font-weight:900;
+            margin-bottom:26px;
+        }
+        .img-box {
+            margin-bottom:30px;
+        }
+        #toggleImg {
+            max-width:220px;
+            max-height:220px;
+            cursor:pointer;
+            border-radius:4px;
+        }
+        .line-text {
+            font-size:22px;
+            font-weight:bold;
+            line-height:2.2;
+            margin-bottom:16px;
+        }
+        .bold-word {
+            font-weight:900;
+            font-size:26px;
+        }
+        .back-index {
+            position:fixed;
+            left:16px;
+            bottom:16px;
+            font-size:13px;
+            color:#cccccc;
+            cursor:pointer;
+        }
+        .back-index:hover {
+            color:#ffffff;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+    <div class="container">
+        <div class="title">讣告</div>
+        <div class="img-box">
+            <img id="toggleImg" src="wangyu_1.jpg" alt="照片">
+        </div>
+        <div class="line-text">王羽医生因<span class="bold-word">意外</span>于<span id="deathDate"></span>去世，享年36岁</div>
+        <div class="line-text">沉痛悼念王羽医生，他对医学的功绩将永远被后人铭记：）</div>
+    </div>
+    <div class="back-index" onclick="location.href='jingyu.html'">返回首页</div>
+
+<script>
+const imgEl = document.getElementById('toggleImg');
+let imgState = true;
+imgEl.addEventListener('click', function(){
+    if(imgState){
+        imgEl.src = "wangyu_2.jpg";
+    }else{
+        imgEl.src = "wangyu_1.jpg";
+    }
+    imgState = !imgState;
+});
+
+const now = new Date();
+const prevDay = new Date(now);
+prevDay.setDate(now.getDate() - 1);
+const y = prevDay.getFullYear();
+const m = String(prevDay.getMonth()+1).padStart(2,'0');
+const d = String(prevDay.getDate()).padStart(2,'0');
+document.getElementById('deathDate').innerText = `${y}年${m}月${d}日`;
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

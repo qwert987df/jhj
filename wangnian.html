@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wangnian</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+        html,body{
+            background:#000000;
+            min-height:100vh;
+            overflow:hidden;
+            font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+        }
+        /*模拟浏览器顶部标题栏*/
+        .win-titlebar{
+            height:32px;
+            background:#2b579a;
+            color:#fff;
+            display:flex;
+            align-items:center;
+            padding:0 10px;
+        }
+        .win-title{
+            flex:1;
+            font-size:13px;
+        }
+        .win-buttons{
+            display:flex;
+            gap:4px;
+        }
+        .win-btn{
+            width:26px;
+            height:26px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:14px;
+            pointer-events:none;
+        }
+        .win-btn-min{
+            background:#4472b8;
+        }
+        /*下方导航栏*/
+        .nav-bar{
+            background:rgba(10,10,10,0.75);
+            border-bottom:1px solid #ff2222;
+            display:flex;
+            justify-content: space-around;
+            padding:12px 40px;
+        }
+        .nav-item{
+            font-size:15px;
+            color:#ff2222;
+        }
+
+        .page-wrap{
+            padding:24px 20px;
+        }
+        .container{
+            max-width:840px;
+            margin:0 auto;
+            position:relative;
+        }
+        .text-box{
+            position:relative;
+            color:#ff2222;
+            text-align:center;
+            line-height:1.8;
+        }
+        .title{
+            font-size:24px;
+            margin-bottom:20px;
+            font-weight:bold;
+        }
+        .main-text{
+            font-size:18px;
+        }
+        .key-text{
+            margin-top:22px;
+            font-size:14px;
+            opacity:0.7;
+        }
+
+        /*透镜效果，页面加载直接生效*/
+        .text-blur{
+            filter: blur(6px);
+        }
+        .text-clear{
+            position:absolute;
+            top:0;
+            left:0;
+            width:100%;
+            mask-image: radial-gradient(circle 80px at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle 80px at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+            pointer-events:none;
+            display:block;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="zhongshi.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<!--浏览器标题栏-->
+<div class="win-titlebar">
+    <div class="win-title">inside</div>
+    <div class="win-buttons">
+        <div class="win-btn win-btn-min">−</div>
+    </div>
+</div>
+<!--导航栏-->
+<div class="nav-bar">
+    <div class="nav-item">无官上神</div>
+    <div class="nav-item">无官上神</div>
+    <div class="nav-item">无官上神</div>
+    <div class="nav-item">无官上神</div>
+    <div class="nav-item">无官上神</div>
+    <div class="nav-item">无官上神</div>
+</div>
+
+<div class="page-wrap">
+    <div class="container">
+        <div class="text-box" id="textWrap">
+            <!--模糊层-->
+            <div class="text-blur">
+                <div class="title">沈从良的日记2</div>
+                <div class="main-text">
+不不不…我不能自杀，我得救小安<br>
+后天上午，我去再次拜访了看事的<br>
+顺便给他塞了个红包<br>
+"你看这事整的…这样，我偷偷告诉你，最近准备开业的什么静愈心理医院，里面有问题，你去打听打听，那里面的东西没准能帮到你"<br>
+我一刻没有停留，查到位置后马不停蹄的订车票过去<br>
+到了地方，我说明了我的来由<br>
+来跟我见面的人不知为何，我总是看不清他的脸，明明看别的地方都很清晰，看他的脸却是一团模糊<br>
+"基本情况我了解了，你跟我来一趟吧"
+                </div>
+                <div class="key-text">key3  A==</div>
+            </div>
+            <!--清晰透镜层，文本必须和上面完全一模一样-->
+            <div class="text-clear">
+                <div class="title">沈从良的日记2</div>
+                <div class="main-text">
+不不不…我不能自杀，我得救小安<br>
+后天上午，我去再次拜访了看事的<br>
+顺便给他塞了个红包<br>
+"你看这事整的…这样，我偷偷告诉你，最近准备开业的什么静愈心理医院，里面有问题，你去打听打听，那里面的东西没准能帮到你"<br>
+我一刻没有停留，查到位置后马不停蹄的订车票过去<br>
+到了地方，我说明了我的来由<br>
+来跟我见面的人不知为何，我总是看不清他的脸，明明看别的地方都很清晰，看他的脸却是一团模糊<br>
+"基本情况我了解了，你跟我来一趟吧"
+                </div>
+                <div class="key-text">key3  A==</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const textWrap = document.getElementById("textWrap");
+document.addEventListener("mousemove", (e)=>{
+    const rect = textWrap.getBoundingClientRect();
+    textWrap.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+    textWrap.style.setProperty("--my", `${e.clientY - rect.top}px`);
+})
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="zhongshi.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

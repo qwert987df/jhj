@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论静心 - 静愈心理医院</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+        }
+        .win-frame{
+            width:100%;
+            height:100%;
+            display:flex;
+            flex-direction:column;
+        }
+        .win-titlebar{
+            height:32px;
+            background:#2b579a;
+            color:#ffffff;
+            display:flex;
+            align-items:center;
+            padding:0 10px;
+        }
+        .win-title{
+            flex:1;
+            font-size:13px;
+        }
+        .win-buttons{
+            display:flex;
+            gap:4px;
+        }
+        .win-btn{
+            width:26px;
+            height:26px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            font-size:14px;
+        }
+        .win-btn-min{
+            background:#4472b8;
+        }
+        .main-container{
+            flex:1;
+            background:#f7f8fa;
+            overflow:auto;
+        }
+        .top-header{
+            background:#165DFF;
+            color:#fff;
+            padding:14px 40px;
+        }
+        .hospital-name{
+            font-size:26px;
+            font-weight:bold;
+        }
+        .hospital-sub{
+            font-size:14px;
+            opacity:0.85;
+            margin-top:4px;
+        }
+        .nav-bar{
+            background:#ffffff;
+            border-bottom:1px solid #e5e7eb;
+            display:flex;
+            gap:36px;
+            padding:12px 40px;
+            align-items:center;
+            justify-content:space-between;
+        }
+        .nav-left{
+            display:flex;
+            gap:36px;
+        }
+        .nav-item{
+            font-size:15px;
+            color:#333;
+            cursor:pointer;
+        }
+        .nav-item:hover{
+            color:#165DFF;
+        }
+        .search-wrap{
+            display:flex;
+            gap:6px;
+        }
+        #search-input{
+            width:220px;
+            padding:6px 10px;
+            border:1px solid #cccccc;
+            border-radius:4px;
+            font-size:14px;
+            outline:none;
+        }
+        #search-btn{
+            padding:6px 14px;
+            background:#165DFF;
+            color:white;
+            border:none;
+            border-radius:4px;
+            cursor:pointer;
+            font-size:14px;
+        }
+        .article-wrap{
+            max-width:760px;
+            margin:40px auto 70px;
+            padding:0 24px;
+            text-align:center;
+        }
+        .article-title{
+            font-size:36px;
+            font-weight:bold;
+            margin-bottom:12px;
+        }
+        .article-author{
+            font-size:17px;
+            color:#555;
+            margin-bottom:40px;
+        }
+        .article-body{
+            text-align:justify;
+            font-size:18px;
+            line-height:2;
+            color:#222;
+        }
+        .article-body p{
+            margin-bottom:22px;
+        }
+        .tip-text{
+            margin-top:45px;
+            font-size:16px;
+            color:#882222;
+            line-height:1.8;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<div class="win-frame">
+    <div class="win-titlebar">
+        <div class="win-title">论静心 - 静愈心理医院</div>
+        <div class="win-buttons">
+            <div class="win-btn win-btn-min" onclick="location.href='index.html'">−</div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="top-header">
+            <div class="hospital-name">静愈心理医院</div>
+            <div class="hospital-sub">精神心理专科 · 正规医疗机构</div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-left">
+                <div class="nav-item" onclick="location.href='jingyu.html'">医院首页</div>
+                <div class="nav-item" onclick="location.href='jianjie.html'">医院简介</div>
+                <div class="nav-item" onclick="location.href='keshi.html'">科室介绍</div>
+                <div class="nav-item" onclick="location.href='zhuanjia.html'">专家团队</div>
+                <div class="nav-item" onclick="location.href='jiuzhen.html'">就诊指南</div>
+                <div class="nav-item" onclick="location.href='contact.html'">联系我们</div>
+            </div>
+            <div class="search-wrap">
+                <input id="search-input" placeholder="请输入搜索内容">
+                <button id="search-btn">搜索</button>
+            </div>
+        </div>
+
+        <div class="article-wrap">
+            <h1 class="article-title">论静心</h1>
+            <div class="article-author">文｜静愈心理医院静心科主任 沈从良</div>
+
+            <div class="article-body">
+                <p>现代生活之中，我们被海量视觉信息裹挟，目光始终向外追逐，比较、评判、思虑源源不断涌入脑海，各种各样的念头此起彼伏。很多来访者来到诊室，诉说自己被焦虑、内耗、失眠所折磨，理智上明明知道不必纠结，可纷乱的念头依旧不受控制，反复盘旋，无法停歇。多数心理困扰的根源，恰恰在于我们过度向外，丢失了和自我身心的连接。这也是我深耕蒙眼静心五感觉察疗愈技术的初衷。</p >
+
+                <p>很多人把静心等同于冥想，以为静心就是清空大脑，什么念头都不要产生。这是极大的误解。念头不会凭空消失，强行压制念头，只会带来更大的内心对抗。我所研发实践的蒙眼静心疗愈技术，核心并非消灭念头，而是创造一个隔绝视觉刺激的安全空间，借助眼罩剥离外界画面的干扰，把人的感知通道重新交还听觉、触觉、嗅觉、味觉与本体体感。当视觉退场，其余感官被放大，我们才有机会跳脱出头脑无休止的思维漩涡，客观观察脑海中升起的每一个念头，不追随、不抗拒、不批判。</p >
+
+                <p>在我的临床工作里，见过太多来访者，道理全都明白，却走不出情绪困境。谈话咨询可以梳理认知，但很难直接把人从漫天飞舞的念头里拉回身体。而蒙眼静心疗愈，提供了一条落地的通路。当来访者闭上双眼，不再接收外界的视觉信号，不再被他人的标准、外界的评价持续输入，全部注意力回归自身：感受呼吸的起伏，感受皮肤接触衣物的触感，捕捉环境细微的声响，觉察胸口的憋闷、肩膀的紧绷。那些被头脑掩盖的情绪、被压抑的感受，会经由身体显现出来。</p >
+
+                <p>这项技术区别于普通的自我冥想练习。个人在家自行静心，很容易陷入胡思乱想，甚至触发不安、解离，缺少专业人员的保护与引导，不仅收效甚微，还可能加重内心混乱。我在临床实践中，形成了一套完整可落地的静心干预体系：从前期的状态评估，体验过程中的实时陪伴引导，到结束后的感受梳理，环环相扣。我会根据每一位来访者的情绪状态，调整引导节奏，规避风险，让来访者安全地面对自己的念头与情绪。</p >
+
+                <p>静心，不是逃离现实世界，而是修炼安顿内心的能力。生活的风雨无法彻底消除，外界的念头也不可能彻底断绝。但我们可以学会不再被念头牵着走。很多来访者经过系统的静心干预之后，最大的改变，不是再也没有烦恼，而是当纷乱念头升起时，不再立刻被卷入痛苦，能够稳住自身，守住内心的一份平和。</p >
+
+                <p>如果你常年被纷飞的念头、无尽的内耗所苦，尝试过倾诉、开导却依旧难以解脱，不妨来静心科体验蒙眼静心疗愈。我愿以多年临床积累的静心技术，陪伴你向内看见自己，觉察念头，安放情绪，寻回属于自己内心的安定力量。</p >
+
+                <p class="tip-text">温馨提示：蒙眼静心疗愈属于心理辅助干预手段，不能替代精神科医学诊断与药物治疗，严重心理问题请优先接受精神科诊疗。</p >
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let devToolOpened = false;
+const clearPage = () => {
+    if(devToolOpened) return;
+    devToolOpened = true;
+    document.body.innerHTML = `<div style="width:100%;height:100vh;display:flex;align-items:center;justify-content:center;font-size:22px;color:#666;">暂无信息</div>`;
+};
+function checkDevSize(){
+    // 处于窗口化桌面 / iframe 中时跳过尺寸检测，避免把正常窄窗口误判成开发者工具
+    if (window.top !== window.self) return;
+    const threshold = 150;
+    if (Math.abs(window.outerWidth - window.innerWidth) > threshold || Math.abs(window.outerHeight - window.innerHeight) > threshold) {
+        clearPage();
+    }
+}
+setInterval(checkDevSize, 400);
+(function() {
+    function debugTrap() { try { debugger; } catch(e) {} }
+    setInterval(debugTrap, 800);
+})();
+document.oncontextmenu = function(){return false;};
+document.onkeydown = function(e){
+    e = e || window.event;
+    if(e.keyCode===123) return false;
+    if(e.ctrlKey && e.keyCode===85) return false;
+    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74)) return false;
+};
+history.pushState(null, null, window.location.href);
+window.addEventListener('popstate',function(){
+    history.pushState(null,null,window.location.href);
+});
+
+//搜索逻辑
+const searchInput = document.querySelector('#search-input');
+const searchBtn = document.querySelector('#search-btn');
+
+function doSearch(){
+    const keyword = searchInput.value.trim();
+    if(!keyword){
+        alert("请输入搜索关键词");
+        return;
+    }
+    if(keyword === "静心科"){
+        location.href = "jxin.html";
+    }else if(keyword === "静心疗愈，守护心灵"){
+        location.href = "idea.html";
+    }else if(keyword === "18305564297806"){
+        location.href = "tel.html";
+    }else if(keyword === "god"){
+        location.href = "god.html";
+    }else if(keyword === "念头"){
+        location.href = "niantou.html";
+    }else if(keyword === "抑郁障碍"){
+        location.href = "yiyu.html";
+    }else if(keyword === "抑郁"){
+        location.href = "yiyu.html";
+    }else if(keyword === "心理修复"){
+        location.href = "heart.html";
+    }else if(keyword === "视觉干扰"){
+        location.href = "jxin.html";
+    }else if(keyword === "五感"){
+        location.href = "wugan.html";
+    }else if(keyword === "思维循环"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "思维"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "沈从良"){
+        location.href = "shen.html";
+    }else if(keyword === "王羽"){
+        location.href = "wangyu.html";
+    }else if(keyword === "林晚"){
+        location.href = "linwan.html";
+    }else if(keyword === "深度治疗"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "静心"){
+        location.href = "heart.html";
+    }else if(keyword === "heart"){
+        location.href = "heart.html";
+    }else if(keyword === "research"){
+        location.href = "research.html";
+    }else{
+        alert("搜索关键词：" + keyword);
+    }
+}
+searchBtn.addEventListener('click',doSearch);
+searchInput.addEventListener('keydown',e=>{
+    if(e.key === 'Enter') doSearch();
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

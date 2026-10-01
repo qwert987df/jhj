@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>操作员身份认证 - 静愈心理医院</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:"Microsoft YaHei",system-ui,-apple-system,sans-serif;
+}
+.win-frame{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+}
+.win-titlebar{
+    height:32px;
+    background:#2b579a;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    flex:0 0 32px;
+}
+.win-title{flex:1;font-size:13px;}
+.win-buttons{display:flex;gap:4px;}
+.win-btn{
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:14px;
+}
+.win-btn-min{background:#4472b8;}
+
+.main-container{
+    flex:1;
+    overflow:auto;
+    background:url("hospital_bg.jpg") center / cover no-repeat;
+}
+.top-header{
+    background:#165DFF;
+    color:#fff;
+    padding:14px 40px;
+}
+.hospital-name{font-size:26px;font-weight:bold;}
+.hospital-sub{font-size:14px;opacity:.85;margin-top:4px;}
+.nav-bar{
+    background:#ffffff;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    gap:36px;
+    padding:12px 40px;
+    align-items:center;
+    justify-content:space-between;
+}
+.nav-left{display:flex;gap:36px;}
+.nav-item{font-size:15px;color:#333;cursor:pointer;}
+.nav-item:hover{color:#165DFF;}
+.search-wrap{display:flex;gap:6px;}
+#search-input{
+    width:220px;padding:6px 10px;border:1px solid #cccccc;border-radius:4px;
+    font-size:14px;outline:none;
+}
+#search-btn{
+    padding:6px 14px;background:#165DFF;color:#fff;border:none;border-radius:4px;
+    cursor:pointer;font-size:14px;
+}
+
+/* ------------------------------------------------ 认证面板（沿用站内白卡排版） */
+.content-wrap{
+    max-width:620px;
+    margin:52px auto 70px;
+    padding:0 24px;
+    text-align:center;
+}
+.page-title{
+    font-size:30px;
+    color:#0f172a;
+    margin-bottom:12px;
+}
+.auth-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:5px 15px;
+    border-radius:999px;
+    font-size:12px;
+    letter-spacing:1.5px;
+    color:#165dff;
+    background:rgba(22,93,255,.08);
+    border:1px solid rgba(22,93,255,.26);
+    margin-bottom:26px;
+}
+.auth-tag i{
+    width:7px;height:7px;border-radius:50%;
+    background:#12b76a;
+    box-shadow:0 0 10px rgba(18,183,106,.8);
+    animation:tagPulse 2.4s ease-in-out infinite;
+}
+@keyframes tagPulse{
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.4;transform:scale(.8);}
+}
+
+/* 凭证完整度 */
+.auth-meter{
+    text-align:left;
+    margin-bottom:24px;
+}
+.am-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    font-size:12.5px;
+    color:#667085;
+    letter-spacing:1px;
+    margin-bottom:8px;
+}
+.am-row b{
+    color:#165dff;
+    font-size:16px;
+    font-weight:800;
+    margin-right:2px;
+    font-variant-numeric:tabular-nums;
+}
+.am-track{
+    height:5px;
+    border-radius:5px;
+    background:rgba(16,24,40,.08);
+    overflow:hidden;
+}
+.am-track i{
+    display:block;
+    height:100%;
+    width:0;
+    border-radius:5px;
+    background:linear-gradient(90deg,#2f78ff,#7db0ff);
+    box-shadow:0 0 12px rgba(22,93,255,.5);
+    transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+.auth-meter.full .am-track i{
+    background:linear-gradient(90deg,#12b76a,#6ce9a6);
+    box-shadow:0 0 12px rgba(18,183,106,.5);
+}
+.auth-meter.full .am-row b{color:#027a48;}
+
+/* 字段 */
+.field{
+    text-align:left;
+    margin-bottom:18px;
+}
+.field label{
+    display:block;
+    font-size:13px;
+    color:#344054;
+    font-weight:600;
+    letter-spacing:1px;
+    margin-bottom:8px;
+}
+.field-box{position:relative;}
+.field-idx{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    font-family:ui-monospace,Consolas,"Courier New",monospace;
+    font-size:12px;
+    color:#b0b8c6;
+    letter-spacing:1px;
+    pointer-events:none;
+    transition:color .3s ease;
+}
+.field input{
+    width:100%;
+    padding:13px 16px 13px 44px;
+    font-size:16px;
+    letter-spacing:1px;
+    color:#101828;
+    background:#fafbfe;
+    border:1px solid rgba(16,24,40,.14);
+    border-radius:10px;
+    outline:none;
+    transition:border-color .26s ease, box-shadow .3s cubic-bezier(.22,1,.36,1), background-color .26s ease;
+}
+.field input::placeholder{color:#b0b8c6;letter-spacing:1px;}
+.field input:hover{border-color:rgba(22,93,255,.34);}
+.content-wrap .field input:focus{
+    background:#fff;
+    border-color:rgba(22,93,255,.7) !important;
+    box-shadow:0 0 0 4px rgba(22,93,255,.12) !important;
+}
+.field-box:focus-within .field-idx{color:#165dff;}
+.field.filled .field-idx{color:#12b76a;}
+
+/* 提交 */
+#submitBtn{
+    width:100%;
+    margin-top:6px;
+}
+.auth-status{
+    margin-top:16px;
+    min-height:20px;
+    font-size:13.5px;
+    letter-spacing:1px;
+    color:#667085;
+    transition:color .3s ease;
+}
+.auth-status.pending{color:#165dff;}
+.auth-status.ok{color:#027a48;font-weight:700;}
+.auth-foot{
+    margin-top:24px;
+    padding-top:16px;
+    border-top:1px dashed rgba(16,24,40,.10);
+    font-size:11.5px;
+    letter-spacing:1px;
+    color:#98a2b3;
+}
+
+/* 认证中的状态 */
+.content-wrap.verifying{
+    box-shadow:0 18px 50px rgba(16,24,40,.10), 0 0 0 3px rgba(22,93,255,.20) !important;
+}
+.content-wrap.granted{
+    box-shadow:0 18px 50px rgba(16,24,40,.10), 0 0 0 3px rgba(18,183,106,.42) !important;
+}
+.content-wrap.denied{
+    animation:authShake .5s cubic-bezier(.36,.07,.19,.97);
+}
+.content-wrap.denied .field input{
+    border-color:rgba(240,68,56,.55);
+}
+@keyframes authShake{
+    10%,90%{transform:translateX(-3px);}
+    20%,80%{transform:translateX(5px);}
+    30%,50%,70%{transform:translateX(-8px);}
+    40%,60%{transform:translateX(8px);}
+}
+
+@media (max-width:640px){
+    .content-wrap{margin:30px auto 50px;padding:0 14px;}
+    .page-title{font-size:23px;}
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<div class="win-frame">
+    <div class="win-titlebar">
+        <div class="win-title">操作员身份认证 - 静愈心理医院</div>
+        <div class="win-buttons">
+            <div class="win-btn win-btn-min" onclick="location.href='index.html'">−</div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="top-header">
+            <div class="hospital-name">静愈心理医院</div>
+            <div class="hospital-sub">精神心理专科 · 正规医疗机构</div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-left">
+                <div class="nav-item" onclick="location.href='jingyu.html'">医院首页</div>
+                <div class="nav-item" onclick="location.href='jianjie.html'">医院简介</div>
+                <div class="nav-item" onclick="location.href='keshi.html'">科室介绍</div>
+                <div class="nav-item" onclick="location.href='zhuanjia.html'">专家团队</div>
+                <div class="nav-item" onclick="location.href='jiuzhen.html'">就诊指南</div>
+                <div class="nav-item" onclick="location.href='contact.html'">联系我们</div>
+            </div>
+            <div class="search-wrap">
+                <input id="search-input" placeholder="请输入搜索内容">
+                <button id="search-btn">搜索</button>
+            </div>
+        </div>
+
+        <div class="content-wrap" id="authCard">
+            <h2 class="page-title">操作员身份认证</h2>
+            <div class="auth-tag"><i></i>内部系统 · 仅限授权人员</div>
+
+            <div class="auth-meter" id="authMeter">
+                <div class="am-row">
+                    <span>凭证完整度</span>
+                    <span><b id="fillCount">0</b> / 3</span>
+                </div>
+                <div class="am-track"><i id="fillBar"></i></div>
+            </div>
+
+            <div class="field" id="f1">
+                <label for="inpName">姓名</label>
+                <div class="field-box">
+                    <span class="field-idx">01</span>
+                    <input id="inpName" type="text" placeholder="请输入姓名" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+            <div class="field" id="f2">
+                <label for="inpId">编号</label>
+                <div class="field-box">
+                    <span class="field-idx">02</span>
+                    <input id="inpId" type="text" placeholder="请输入编号" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+            <div class="field" id="f3">
+                <label for="inpFunc">作用</label>
+                <div class="field-box">
+                    <span class="field-idx">03</span>
+                    <input id="inpFunc" type="text" placeholder="请输入作用" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+
+            <button id="submitBtn">提交认证</button>
+            <div class="auth-status" id="authStatus"></div>
+            <div class="auth-foot">本终端仅限授权人员使用 · 所有操作均会被记录</div>
+        </div>
+    </div>
+</div>
+
+<script>
+//====================开发者工具检测，检测到直接展示暂无信息====================
+let devToolOpened = false;
+const clearPage = () => {
+    if(devToolOpened) return;
+    devToolOpened = true;
+    document.body.innerHTML = `<div style="width:100%;height:100vh;display:flex;align-items:center;justify-content:center;font-size:22px;color:#666;">暂无信息</div>`;
+};
+
+function checkDevSize() {
+    // 处于窗口化桌面 / iframe 中时跳过尺寸检测，避免把正常窄窗口误判成开发者工具
+    if (window.top !== window.self) return;
+    const threshold = 150;
+    if (Math.abs(window.outerWidth - window.innerWidth) > threshold || Math.abs(window.outerHeight - window.innerHeight) > threshold) {
+        clearPage();
+    }
+}
+setInterval(checkDevSize, 400);
+
+(function() {
+    function debugTrap() {
+        try {
+            debugger;
+        } catch(e) {}
+    }
+    setInterval(debugTrap, 800);
+})();
+
+document.oncontextmenu = function(){return false;};
+document.onkeydown = function(e){
+    e = e || window.event;
+    if(e.keyCode===123) return false;
+    if(e.ctrlKey && e.keyCode===85) return false;
+    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74)) return false;
+};
+history.pushState(null, null, window.location.href);
+window.addEventListener('popstate',function(){
+    history.pushState(null,null,window.location.href);
+});
+//====================================================
+
+//搜索逻辑
+const searchInput = document.querySelector('#search-input');
+const searchBtn = document.querySelector('#search-btn');
+
+function doSearch(){
+    const keyword = searchInput.value.trim();
+    if(!keyword){
+        alert("请输入搜索关键词");
+        return;
+    }
+    if(keyword === "静心科"){
+        location.href = "jxin.html";
+    }else if(keyword === "静心疗愈，守护心灵"){
+        location.href = "idea.html";
+    }else if(keyword === "18305564297806"){
+        location.href = "tel.html";
+    }else if(keyword === "god"){
+        location.href = "god.html";
+    }else if(keyword === "念头"){
+        location.href = "niantou.html";
+    }else if(keyword === "抑郁障碍"){
+        location.href = "yiyu.html";
+    }else if(keyword === "抑郁"){
+        location.href = "yiyu.html";
+    }else if(keyword === "心理修复"){
+        location.href = "heart.html";
+    }else if(keyword === "视觉干扰"){
+        location.href = "jxin.html";
+    }else if(keyword === "五感"){
+        location.href = "wugan.html";
+    }else if(keyword === "思维循环"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "思维"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "沈从良"){
+        location.href = "shen.html";
+    }else if(keyword === "王羽"){
+        location.href = "wangyu.html";
+    }else if(keyword === "林晚"){
+        location.href = "linwan.html";
+    }else if(keyword === "深度治疗"){
+        location.href = "zhiliao.html";
+    }else if(keyword === "静心"){
+        location.href = "heart.html";
+    }else if(keyword === "heart"){
+        location.href = "heart.html";
+    }else if(keyword === "research"){
+        location.href = "research.html";
+    }else{
+        alert("搜索关键词：" + keyword);
+    }
+}
+searchBtn.addEventListener('click',doSearch);
+searchInput.addEventListener('keydown',e=>{
+    if(e.key === 'Enter') doSearch();
+});
+
+//身份认证逻辑
+const inpName = document.getElementById('inpName');
+const inpId = document.getElementById('inpId');
+const inpFunc = document.getElementById('inpFunc');
+const submitBtn = document.getElementById('submitBtn');
+const authCard = document.getElementById('authCard');
+const authMeter = document.getElementById('authMeter');
+const authStatus = document.getElementById('authStatus');
+const fillCount = document.getElementById('fillCount');
+const fillBar = document.getElementById('fillBar');
+const fields = [
+    { input: inpName, box: document.getElementById('f1') },
+    { input: inpId,   box: document.getElementById('f2') },
+    { input: inpFunc, box: document.getElementById('f3') }
+];
+
+let verifying = false;
+let passed = false;
+
+/* 凭证完整度：三个字段各占 1/3 */
+function refreshFill(){
+    let n = 0;
+    fields.forEach(f=>{
+        const filled = f.input.value.trim().length > 0;
+        f.box.classList.toggle('filled', filled);
+        if(filled) n++;
+    });
+    fillCount.textContent = n;
+    fillBar.style.width = (n / 3 * 100) + '%';
+    authMeter.classList.toggle('full', n === 3);
+}
+fields.forEach(f=>{
+    f.input.addEventListener('input', refreshFill);
+});
+
+function setStatus(text, kind){
+    authStatus.textContent = text || '';
+    authStatus.className = 'auth-status' + (kind ? ' ' + kind : '');
+}
+
+function verify(){
+    if(verifying || passed) return;
+
+    const name = inpName.value.trim();
+    const id = inpId.value.trim();
+    const func = inpFunc.value.trim();
+
+    verifying = true;
+    submitBtn.disabled = true;
+    authCard.classList.add('verifying');
+    setStatus('正在核验凭证…', 'pending');
+
+    // 给认证过程一点仪式感，再给出结果
+    setTimeout(()=>{
+        verifying = false;
+
+        //正确凭据
+        if(name === "王羽" && id === "00023" && func === "nothing"){
+            passed = true;
+            authCard.classList.remove('verifying');
+            authCard.classList.add('granted');
+            authMeter.classList.add('full');
+            setStatus('认证通过 · 正在进入操作界面', 'ok');
+            setTimeout(()=>{ location.href = "em.html"; }, 850);
+            return;
+        }
+
+        submitBtn.disabled = false;
+        authCard.classList.remove('verifying');
+        authCard.classList.add('denied');
+        setStatus('');
+        setTimeout(()=>authCard.classList.remove('denied'), 700);
+        alert("身份认证失败，请核对信息");
+    }, 900);
+}
+
+submitBtn.addEventListener('click', verify);
+
+//回车也能提交
+fields.forEach(f=>{
+    f.input.addEventListener('keydown', e=>{
+        if(e.key === 'Enter') verify();
+    });
+});
+
+refreshFill();
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

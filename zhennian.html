@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zhennian</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body{
+    height:100%;
+    font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+}
+
+#base{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    background:#000;
+    display:flex;
+    flex-direction:column;
+}
+
+/*修复：初始圆孔放在页面中间，不要0,0，避免大片区域mask失效漏底层 */
+#blur-layer{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    filter: blur(10px);
+    mask: radial-gradient(circle 80px at var(--x,50vw) var(--y,50vh), transparent 0%, #000 100%);
+    -webkit-mask: radial-gradient(circle 80px at var(--x,50vw) var(--y,50vh), transparent 0%, #000 100%);
+}
+
+.win-frame{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+}
+.win-titlebar{
+    height:32px;
+    background:#2b579a;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+}
+.win-title{
+    flex:1;
+    font-size:13px;
+}
+.win-buttons{
+    display:flex;
+    gap:4px;
+}
+.win-btn{
+    width:26px;
+    height:26px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    pointer-events:none;
+}
+.win-btn-min{
+    background:#4472b8;
+}
+.main-container{
+    background:rgba(0,0,0,0.75);
+    padding:14px 40px;
+}
+.top-header{
+    margin-bottom:12px;
+}
+.hospital-name{
+    font-size:26px;
+    font-weight:bold;
+    color:#ff2222;
+}
+.hospital-sub{
+    font-size:14px;
+    opacity:0.85;
+    color:#ff2222;
+    margin-top:4px;
+}
+.nav-bar{
+    background:rgba(10,10,10,0.75);
+    border-bottom:1px solid #ff2222;
+    display:flex;
+    justify-content: space-around;
+    padding:12px 40px;
+    width:100%;
+}
+.nav-item{
+    font-size:15px;
+    color:#ff2222;
+    pointer-events:none;
+}
+
+.content-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:40px;
+    color:#ff2222;
+    text-align:center;
+    line-height:2.2;
+}
+.title{
+    font-size:36px;
+    margin-bottom:30px;
+    font-weight:bold;
+}
+.text-body{
+    font-size:22px;
+    max-width:800px;
+}
+.click-line{
+    margin-top:35px;
+    font-size:24px;
+    cursor:pointer;
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="zhongshi.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<div id="base">
+    <div class="win-frame">
+        <div class="win-titlebar">
+            <div class="win-title">inside</div>
+            <div class="win-buttons">
+                <div class="win-btn win-btn-min">−</div>
+            </div>
+        </div>
+        <div class="main-container">
+            <div class="top-header">
+                <div class="hospital-name">。。【‘’心理医院</div>
+                <div class="hospital-sub">五感奉于神明，恶念终为真念</div>
+            </div>
+            <div class="nav-bar">
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+            </div>
+        </div>
+        <div class="content-wrap">
+            <div class="title">真念论</div>
+            <div class="text-body">
+【不知为何，这个页面是如此清晰】<br><br>
+夫真念者，发于本心，不矫于外，不逐于妄。<br><br>
+心之所向，诚而无伪，是为真念。非徇情欲，非溺贪嗔，不以私害义，不以惑乱神。<br><br>
+妄念起，则百惑丛生；真念存，则方寸自明。<br><br>
+人苟守其真，虽处纷嚣，不堕邪诡。若本心一昧，伪念蔽灵，则邪祟得伺，祸乱随生。<br><br>
+故曰：守真念者，可以远殃；纵妄情者，足以招厄。
+            </div>
+            <div class="click-line" id="clickTarget">真念为重，真念为重，真念为重</div>
+        </div>
+    </div>
+</div>
+
+<div id="blur-layer">
+    <div class="win-frame">
+        <div class="win-titlebar">
+            <div class="win-title">inside</div>
+            <div class="win-buttons">
+                <div class="win-btn win-btn-min">−</div>
+            </div>
+        </div>
+        <div class="main-container">
+            <div class="top-header">
+                <div class="hospital-name">。。【‘’心理医院</div>
+                <div class="hospital-sub">五感奉于神明，恶念终为真念</div>
+            </div>
+            <div class="nav-bar">
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+            </div>
+        </div>
+        <div class="content-wrap">
+            <div class="title">真念论</div>
+            <div class="text-body">
+【不知为何，这个页面是如此清晰】<br><br>
+夫真念者，发于本心，不矫于外，不逐于妄。<br><br>
+心之所向，诚而无伪，是为真念。非徇情欲，非溺贪嗔，不以私害义，不以惑乱神。<br><br>
+妄念起，则百惑丛生；真念存，则方寸自明。<br><br>
+人苟守其真，虽处纷嚣，不堕邪诡。若本心一昧，伪念蔽灵，则邪祟得伺，祸乱随生。<br><br>
+故曰：守真念者，可以远殃；纵妄情者，足以招厄。
+            </div>
+            <div class="click-line">真念为重，真念为重，真念为重</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const blurLayer = document.getElementById('blur-layer');
+document.addEventListener('mousemove',e=>{
+    blurLayer.style.setProperty('--x',e.clientX+'px');
+    blurLayer.style.setProperty('--y',e.clientY+'px');
+});
+
+const el = document.getElementById('clickTarget');
+el.addEventListener('click',()=>{
+    el.innerText = "key1  a2";
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="zhongshi.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>
