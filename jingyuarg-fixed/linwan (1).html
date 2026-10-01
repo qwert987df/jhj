@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>林晚病例 - 静愈心理医院</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+        }
+        .win-frame{
+            width:100%;
+            height:100%;
+            display:flex;
+            flex-direction:column;
+        }
+        .win-titlebar{
+            height:32px;
+            background:#2b579a;
+            color:#ffffff;
+            display:flex;
+            align-items:center;
+            padding:0 10px;
+        }
+        .win-title{
+            flex:1;
+            font-size:13px;
+        }
+        .win-buttons{
+            display:flex;
+            gap:4px;
+        }
+        .win-btn{
+            width:26px;
+            height:26px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            font-size:14px;
+        }
+        .win-btn-min{
+            background:#4472b8;
+        }
+        .main-container{
+            flex:1;
+            background:#f7f8fa;
+            overflow:auto;
+        }
+        .top-header{
+            background:#165DFF;
+            color:#fff;
+            padding:14px 40px;
+        }
+        .hospital-name{
+            font-size:26px;
+            font-weight:bold;
+        }
+        .hospital-sub{
+            font-size:14px;
+            opacity:0.85;
+            margin-top:4px;
+        }
+        .nav-bar{
+            background:#ffffff;
+            border-bottom:1px solid #e5e7eb;
+            display:flex;
+            gap:36px;
+            padding:12px 40px;
+            align-items:center;
+            justify-content:space-between;
+        }
+        .nav-left{
+            display:flex;
+            gap:36px;
+        }
+        .nav-item{
+            font-size:15px;
+            color:#333;
+            cursor:pointer;
+        }
+        .nav-item:hover{
+            color:#165DFF;
+        }
+        .search-wrap{
+            display:flex;
+            gap:6px;
+        }
+        #search-input{
+            width:220px;
+            padding:6px 10px;
+            border:1px solid #cccccc;
+            border-radius:4px;
+            font-size:14px;
+            outline:none;
+        }
+        #search-btn{
+            padding:6px 14px;
+            background:#165DFF;
+            color:white;
+            border:none;
+            border-radius:4px;
+            cursor:pointer;
+            font-size:14px;
+        }
+        .article-wrap{
+            max-width:760px;
+            margin:40px auto 70px;
+            padding:0 24px;
+        }
+        #log-container{
+            margin-top:30px;
+            font-family:Consolas,monospace;
+            font-size:15px;
+            color:#222;
+            white-space:pre-wrap;
+            max-height:500px;
+            overflow-y:auto;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+</head>
+<body>
+<div class="win-frame">
+    <div class="win-titlebar">
+        <div class="win-title">林晚病例 - 静愈心理医院</div>
+        <div class="win-buttons">
+            <div class="win-btn win-btn-min" onclick="location.href='index.html'">−</div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="top-header">
+            <div class="hospital-name">静愈心理医院</div>
+            <div class="hospital-sub">精神心理专科 · 正规医疗机构</div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-left">
+                <div class="nav-item" onclick="location.href='jingyu.html'">医院首页</div>
+                <div class="nav-item" onclick="location.href='jianjie.html'">医院简介</div>
+                <div class="nav-item" onclick="location.href='keshi.html'">科室介绍</div>
+                <div class="nav-item" onclick="location.href='zhuanjia.html'">专家团队</div>
+                <div class="nav-item" onclick="location.href='jiuzhen.html'">就诊指南</div>
+                <div class="nav-item" onclick="location.href='contact.html'">联系我们</div>
+            </div>
+            <div class="search-wrap">
+                <input id="search-input" placeholder="请输入搜索内容">
+                <button id="search-btn">搜索</button>
+            </div>
+        </div>
+
+        <div class="article-wrap">
+            <div id="log-container"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let devToolOpened = false;
+const clearPage = () => {
+    if(devToolOpened) return;
+    devToolOpened = true;
+    document.body.innerHTML = `<div style="width:100%;height:100vh;display:flex;align-items:center;justify-content:center;font-size:22px;color:#666;">暂无信息</div>`;
+};
+function checkDevSize(){
+    // 处于窗口化桌面 / iframe 中时跳过尺寸检测，避免把正常窄窗口误判成开发者工具
+    if (window.top !== window.self) return;
+    const threshold = 150;
+    if (Math.abs(window.outerWidth - window.innerWidth) > threshold || Math.abs(window.outerHeight - window.innerHeight) > threshold) {
+        clearPage();
+    }
+}
+setInterval(checkDevSize, 400);
+(function() {
+    function debugTrap() { try { debugger; } catch(e) {} }
+    setInterval(debugTrap, 800);
+})();
+document.oncontextmenu = function(){return false;};
+document.onkeydown = function(e){
+    e = e || window.event;
+    if(e.keyCode===123) return false;
+    if(e.ctrlKey && e.keyCode===85) return false;
+    if(e.ctrlKey && e.shiftKey && (e.keyCode===73||e.keyCode===74)) return false;
+};
+history.pushState(null, null, window.location.href);
+window.addEventListener('popstate',function(){
+    history.pushState(null,null,window.location.href);
+});
+
+const searchInput = document.querySelector('#search-input');
+const logContainer = document.querySelector('#log-container');
+const repeatText = "林晚病例（已损坏）";
+
+//搜索框初始填入
+searchInput.value = repeatText;
+
+//每0.1秒，重复输出同一行文字
+// 每 0.1 秒重复输出同一行文字（只保留最近 240 行，避免无限堆积把内存吃满）
+const MAX_LINES = 240;
+setInterval(()=>{
+    const lineDiv = document.createElement('div');
+    lineDiv.textContent = repeatText;
+    logContainer.appendChild(lineDiv);
+    while(logContainer.childElementCount > MAX_LINES){
+        logContainer.removeChild(logContainer.firstElementChild);
+    }
+    logContainer.scrollTop = logContainer.scrollHeight;
+},100);
+
+//搜索按钮与回车无功能
+const searchBtn = document.querySelector('#search-btn');
+searchBtn.onclick = function(){};
+searchInput.onkeydown = function(e){
+    if(e.key === 'Enter') e.preventDefault();
+};
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>other</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html,body{
+    height:100%;
+    overflow:hidden;
+    font-family: system-ui,-apple-system,"Microsoft Yahei",sans-serif;
+}
+
+/*底层：清晰可交互页面 */
+#base{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    background:#000;
+    display:flex;
+    flex-direction:column;
+}
+
+/*上层：模糊副本，统一模糊10px */
+#blur-layer{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    filter: blur(10px);
+    mask: radial-gradient(circle 80px at var(--x,0) var(--y,0), transparent 0%, #000 100%);
+    -webkit-mask: radial-gradient(circle 80px at var(--x,0) var(--y,0), transparent 0%, #000 100%);
+}
+
+.win-frame{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+}
+.win-titlebar{
+    height:32px;
+    background:#2b579a;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+}
+.win-title{
+    flex:1;
+    font-size:13px;
+}
+.win-buttons{
+    display:flex;
+    gap:4px;
+}
+.win-btn{
+    width:26px;
+    height:26px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    pointer-events:none;
+}
+.win-btn-min{
+    background:#4472b8;
+}
+.main-container{
+    background:rgba(0,0,0,0.75);
+    padding:14px 40px;
+}
+.top-header{
+    margin-bottom:12px;
+}
+.hospital-name{
+    font-size:26px;
+    font-weight:bold;
+    color:#ff2222;
+}
+.hospital-sub{
+    font-size:14px;
+    opacity:0.85;
+    color:#ff2222;
+    margin-top:4px;
+}
+.nav-bar{
+    background:rgba(10,10,10,0.75);
+    border-bottom:1px solid #ff2222;
+    display:flex;
+    justify-content: space-around;
+    padding:12px 40px;
+    width:100%;
+}
+.nav-item{
+    font-size:15px;
+    color:#ff2222;
+    pointer-events:none;
+}
+
+.body-wrap{
+    flex:1;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+.form-box{
+    text-align:center;
+    color:#ff2222;
+}
+.form-title{
+    font-size:28px;
+    margin-bottom:30px;
+    line-height:1.8;
+}
+.form-item{
+    margin:20px 0;
+}
+.form-item label{
+    display:block;
+    font-size:24px;
+    margin-bottom:8px;
+}
+.form-item input{
+    background:#111;
+    border:1px solid #ff2222;
+    color:#ff2222;
+    font-size:20px;
+    padding:10px 14px;
+    width:320px;
+    max-width:90vw;
+}
+.form-item input:focus{
+    outline:none;
+    border-color:#ff4444;
+}
+.submit-btn{
+    margin-top:25px;
+    background:#ff2222;
+    color:#000;
+    border:none;
+    font-size:22px;
+    padding:10px 32px;
+    cursor:pointer;
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="zhongshi.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+<!--底层，可交互真实页面 -->
+<div id="base">
+    <div class="win-frame">
+        <div class="win-titlebar">
+            <div class="win-title">inside</div>
+            <div class="win-buttons">
+                <div class="win-btn win-btn-min">−</div>
+            </div>
+        </div>
+        <div class="main-container">
+            <div class="top-header">
+                <div class="hospital-name">。。【‘’心理医院</div>
+                <div class="hospital-sub">五感奉于神明，恶念终为真念</div>
+            </div>
+            <div class="nav-bar">
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+            </div>
+        </div>
+        <div class="body-wrap">
+            <div class="form-box">
+                <div class="form-title">
+                    填写他的信息，上神与你交易<br>
+                    支付你的血液，赔付你的愿力
+                </div>
+                <div class="form-item">
+                    <label>姓名</label>
+                    <input type="text" id="inpName">
+                </div>
+                <div class="form-item">
+                    <label>生辰八字</label>
+                    <input type="text" id="inpBirth">
+                </div>
+                <div class="form-item">
+                    <label>密钥</label>
+                    <input type="text" id="inpKey">
+                </div>
+                <button class="submit-btn" id="btnSubmit">确认提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--上层：模糊副本，原样保留input和button，恢复原版 -->
+<div id="blur-layer">
+    <div class="win-frame">
+        <div class="win-titlebar">
+            <div class="win-title">inside</div>
+            <div class="win-buttons">
+                <div class="win-btn win-btn-min">−</div>
+            </div>
+        </div>
+        <div class="main-container">
+            <div class="top-header">
+                <div class="hospital-name">。。【‘’心理医院</div>
+                <div class="hospital-sub">五感奉于神明，恶念终为真念</div>
+            </div>
+            <div class="nav-bar">
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+                <div class="nav-item">无官上神</div>
+            </div>
+        </div>
+        <div class="body-wrap">
+            <div class="form-box">
+                <div class="form-title">
+                    填写他的信息，上神与你交易<br>
+                    支付你的血液，赔付你的愿力
+                </div>
+                <div class="form-item">
+                    <label>姓名</label>
+                    <input type="text">
+                </div>
+                <div class="form-item">
+                    <label>生辰八字</label>
+                    <input type="text">
+                </div>
+                <div class="form-item">
+                    <label>密钥</label>
+                    <input type="text">
+                </div>
+                <button class="submit-btn">确认提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const blurLayer = document.getElementById('blur-layer');
+document.addEventListener('mousemove',e=>{
+    blurLayer.style.setProperty('--x',e.clientX+'px');
+    blurLayer.style.setProperty('--y',e.clientY+'px');
+});
+
+//表单逻辑
+const inpName = document.getElementById('inpName');
+const inpBirth = document.getElementById('inpBirth');
+const inpKey = document.getElementById('inpKey');
+const btnSubmit = document.getElementById('btnSubmit');
+
+btnSubmit.onclick = ()=>{
+    const n = inpName.value.trim();
+    const b = inpBirth.value.trim();
+    const k = inpKey.value.trim();
+    //只修复：移除零宽隐藏字符，其余判断条件原样
+    if(n === '沈从良' && b === '庚申癸未甲辰戊辰' && k === 'die'){
+        location.href = 'real.html';
+    }else{
+        alert("信息不匹配，请核对");
+    }
+};
+document.addEventListener('keydown',ev=>{
+    if(ev.key === 'Enter') btnSubmit.click();
+});
+</script>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="zhongshi.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>

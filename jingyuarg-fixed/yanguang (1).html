@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yanguang</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html{
+    height:100%;
+    background:#000;
+}
+body{
+    min-height:100vh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    background:#000 url("./bg1.jpg") center/cover no-repeat;
+    color:#ff2222;
+    font-family:"Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    font-size:26px;
+    font-weight:bold;
+    line-height:2.2;
+    padding:30px;
+    cursor:pointer;
+    text-shadow:0 0 18px rgba(255,0,0,.32);
+    transition:background-image .18s linear;
+}
+
+/* 演出舞台：抖动只作用在这一层，透镜坐标依然按 textWrap 计算，光圈不会跑偏 */
+#hzStage{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:30px;
+    overflow:hidden;
+    transform:translate3d(0,0,0);
+    will-change:transform;
+}
+
+.text-line{
+    margin:8px 0;
+    letter-spacing:.05em;
+    text-align:center;
+    word-break:break-word;
+}
+
+/* 背景模糊遮罩层：透镜逻辑完全保留，半径改为可收缩的变量 */
+#bgBlurLayer{
+    position:fixed;
+    inset:0;
+    z-index:997;
+    pointer-events:none;
+    display:none;
+    background:#000 var(--bg-url,url("./bg1.jpg")) center/cover no-repeat;
+}
+#bgBlurLayer.lens-on{
+    display:block;
+    filter: blur(6px);
+    mask-image: radial-gradient(circle var(--hz-lens,70px) at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+    -webkit-mask-image: radial-gradient(circle var(--hz-lens,70px) at var(--mx,0px) var(--my,0px), transparent 0%, #fff 100%);
+    transition: filter .3s linear;
+}
+
+#textWrap{
+    position:relative;
+    z-index:999;
+    width:min(1000px,100%);
+}
+.text-box{
+    position:relative;
+}
+/* 初始不模糊，透镜开启才模糊 */
+.lens-on .text-blur{
+    filter: blur(6px);
+    transition: filter .3s linear;
+}
+
+.text-clear{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    mask-image: radial-gradient(circle var(--hz-lens,70px) at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle var(--hz-lens,70px) at var(--mx,0px) var(--my,0px), #fff 0%, transparent 100%);
+    pointer-events:none;
+    display:none;
+}
+.lens-on .text-clear{
+    display:block;
+    color:#ffffff;
+    text-shadow:0 0 26px rgba(255,60,60,.85),0 0 70px rgba(255,0,0,.4);
+}
+
+/* 伪装褪去那一刻的整体倾覆 */
+body.hz-broken{
+    filter: saturate(.72) contrast(1.12);
+}
+</style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="horror.css">
+</head>
+<body>
+
+<div id="hzStage">
+    <div id="bgBlurLayer"></div>
+    <div id="textWrap" class="text-box">
+        <div class="text-blur" id="contentBlur"></div>
+        <div class="text-clear" id="contentClear"></div>
+    </div>
+</div>
+
+<audio id="aud" src="./sound.mp3" preload="auto"></audio>
+
+<script src="horror.js"></script>
+<script>
+/* =========================================================================
+   yanguang —— 验光机 / 视觉被剥夺
+   关键节奏：
+     第 4 句「那个网页褪去了伪装」→ 硬切 + 重击 + 静电 + 剧烈抖动 + sound.mp3
+     切换完成后开启透镜，并随着后续每一句把视野（透镜半径）逐步抽干
+     最后「你没有退路了」→ 视野完全关闭 → 黑场进入里世界
+   ========================================================================= */
+(function () {
+    'use strict';
+
+    var textArr = [
+        "记忆里，虚幻的验光机钻入了你的头部",
+        "视孔里的图像吸引了你，一片麦田，一条小径，路的尽头梦幻般的漂浮着一个五彩斑斓的热气球",
+        "仿佛你儿时的梦境",
+        "那个网页褪去了伪装",
+        "你的视觉被剥夺",
+        "五感缺一",
+        "你逐渐感到恐慌…",
+        "你知道，你没有退路了"
+    ];
+    var bgs = ["./bg1.jpg", "./bg2.jpg", "./bg3.jpg"];
+
+    // 第 4 句之后，每推进一句就把视野收窄一档
+    var LENS_STEPS = [70, 58, 44, 26, 0];
+
+    var ptr = 0;
+    var triggerBg = false;
+    var lensActive = false;
+    var unlockAfterBg3 = false;
+    var leaving = false;
+
+    var textWrap = document.getElementById("textWrap");
+    var bgBlurLayer = document.getElementById("bgBlurLayer");
+    var contentBlur = document.getElementById("contentBlur");
+    var contentClear = document.getElementById("contentClear");
+    var aud = document.getElementById("aud");
+
+    HORROR.init({
+        stage: "#hzStage",
+        lines: "#contentBlur",
+        heartbeat: 60,
+        hint: "▸ 点击继续"
+    });
+    HORROR.setLens(70);
+
+    function setBg(url) {
+        document.body.style.backgroundImage = 'url("' + url + '")';
+        bgBlurLayer.style.setProperty('--bg-url', 'url("' + url + '")');
+    }
+
+    /* 鼠标移动：统一转换坐标，保证文字光圈和背景光圈完全重合 */
+    document.addEventListener('mousemove', function (e) {
+        if (!lensActive) return;
+        var rect = textWrap.getBoundingClientRect();
+        // 文字层：坐标要相对 textWrap（它是页面里居中的一块）
+        textWrap.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+        textWrap.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+        // 背景层是 position:fixed、铺满整个视口，必须用视口坐标；
+        // 用 textWrap 的相对坐标会让背景光圈整体偏出去一个 textWrap 的偏移量。
+        bgBlurLayer.style.setProperty('--mx', e.clientX + 'px');
+        bgBlurLayer.style.setProperty('--my', e.clientY + 'px');
+    });
+
+    function leave() {
+        if (leaving) return;
+        leaving = true;
+        HORROR.stopBeat();
+        location.href = "inside.html";
+    }
+
+    function addLine(text, em) {
+        var pBlur = document.createElement("div");
+        pBlur.className = "text-line hz-line" + (em ? " hz-em" : "");
+        pBlur.textContent = text;
+        contentBlur.appendChild(pBlur);
+
+        var pClear = document.createElement("div");
+        pClear.className = "text-line hz-line" + (em ? " hz-em" : "");
+        pClear.textContent = text;
+        contentClear.appendChild(pClear);
+
+        // 已经念过的句子沉下去
+        Array.prototype.forEach.call(contentBlur.children, function (c) {
+            if (c !== pBlur) c.classList.add('hz-past');
+        });
+        Array.prototype.forEach.call(contentClear.children, function (c) {
+            if (c !== pClear) c.classList.add('hz-past');
+        });
+
+        HORROR.tick();
+    }
+
+    document.body.addEventListener('click', function () {
+        if (leaving) return;
+
+        if (ptr >= textArr.length) { leave(); return; }
+        if (ptr >= 4 && !unlockAfterBg3) return;   // 换背景的两秒里不接受推进
+
+        var i = ptr;
+
+        if (i === 3 && !triggerBg) {
+            // ---------- 伪装褪去：全场最重的一下 ----------
+            triggerBg = true;
+            addLine(textArr[i]);
+            ptr++;
+
+            HORROR.hit();
+            HORROR.flash('red', 420);
+            HORROR.glitch(1, 340);
+            HORROR.shake('heavy');
+            HORROR.static(0.5, 0.22);
+            HORROR.dread(0.62);
+
+            aud.currentTime = 0;
+            aud.play().catch(function () {});
+
+            setTimeout(function () { setBg(bgs[1]); }, 60);
+
+            setTimeout(function () {
+                setBg(bgs[2]);
+                document.body.classList.add('hz-broken');
+                aud.pause();
+                unlockAfterBg3 = true;
+
+                // 切换 bg3 立刻开启透镜
+                lensActive = true;
+                textWrap.classList.add('lens-on');
+                bgBlurLayer.classList.add('lens-on');
+                bgBlurLayer.style.display = 'block';
+                HORROR.setLens(LENS_STEPS[0]);
+                HORROR.dread(0.5);
+                HORROR.glitch(0.4, 180);
+            }, 2000);
+            return;
+        }
+
+        addLine(textArr[i], i >= 4);
+        ptr++;
+
+        // ---------- 视觉被一点点抽走 ----------
+        if (i >= 4) {
+            var step = Math.min(LENS_STEPS.length - 1, i - 3);
+            HORROR.setLens(LENS_STEPS[step]);
+            var d = 0.5 + (i - 4) * 0.16;              // 0.50 → 0.98
+            HORROR.dread(d);
+            HORROR.shake(i >= 6 ? 'medium' : 'light');
+            HORROR.glitch(0.25 + (i - 4) * 0.22, 160);
+
+            if (i === 4) { HORROR.static(0.35, 0.14); HORROR.breathe(); }
+            if (i === 5) HORROR.whisper();
+            if (i === 6) { HORROR.eyes(3); HORROR.static(0.3, 0.12); }
+            if (i === 7) {
+                // 视野彻底关闭 → 黑场
+                HORROR.dread(1);
+                HORROR.riser(1.8);
+                HORROR.irisTo(0, 1500, 1);
+                setTimeout(function () {
+                    HORROR.hit();
+                    HORROR.fadeTo('#000000', 1100, leave);
+                }, 1500);
+            }
+        } else {
+            // 前四句：梦一样的平静，只有极轻的暗示
+            HORROR.dread(i * 0.07);
+            if (i === 1) HORROR.breathe();
+            if (i === 2) HORROR.whisper();
+        }
+    });
+
+    // 键盘也能推进
+    document.addEventListener('keydown', function (e) {
+        if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            document.body.click();
+        }
+    });
+})();
+</script>
+<script src="arg-ui.js" defer></script>
+<script src="desktop-app.js" defer></script>
+</body>
+</html>

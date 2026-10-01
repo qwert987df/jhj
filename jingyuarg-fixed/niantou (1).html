@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>niantou</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: url("bg_niantou.jpg") no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            position: relative;
+        }
+        .back-index {
+            position: fixed;
+            left: 16px;
+            bottom: 16px;
+            font-size:13px;
+            color:#ffffff;
+            opacity:0.75;
+            cursor:pointer;
+            z-index:10;
+        }
+        .back-index:hover{
+            opacity:1;
+        }
+        .couplet-wrap {
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:120px;
+            padding:100px 20px;
+        }
+        .column {
+            display:flex;
+            flex-direction: column;
+            gap:16px;
+        }
+        .char {
+            font-size:90px;
+            color:#d60000;
+            font-weight:900;
+        }
+        .click-word {
+            cursor:pointer;
+            text-decoration:none;
+        }
+    </style>
+    <link rel="stylesheet" href="arg-ui.css">
+    <link rel="stylesheet" href="keywords.css">
+</head>
+<body>
+    <div class="couplet-wrap">
+        <!--左列：善念恶念，皆出于心 -->
+        <div class="column">
+            <div class="char">善</div>
+            <div class="char">念</div>
+            <div class="char">恶</div>
+            <div class="char">念</div>
+            <div class="char">，</div>
+            <div class="char">皆</div>
+            <div class="char">出</div>
+            <div class="char">于</div>
+            <div class="char">心</div>
+        </div>
+        <!--右列：蒙首观心，方得真念 -->
+        <div class="column">
+            <div class="char">蒙</div>
+            <div class="char">首</div>
+            <div class="char">观</div>
+            <div class="char">心</div>
+            <div class="char">，</div>
+            <div class="char">方</div>
+            <div class="char">得</div>
+            <div class="char click-word" onclick="location.href='wenjian.html'">真</div>
+            <div class="char click-word" onclick="location.href='wenjian.html'">念</div>
+        </div>
+    </div>
+    <div class="back-index" onclick="location.href='jingyu.html'">返回首页</div>
+    <script src="arg-ui.js" defer></script>
+    <script src="desktop-app.js" defer></script>
+    <script src="keywords.js" defer></script>
+</body>
+</html>
